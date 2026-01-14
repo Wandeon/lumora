@@ -16,6 +16,7 @@ describe('Prisma Mock', () => {
       customDomain: null,
       logoUrl: null,
       brandColor: null,
+      apiKeyHash: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
