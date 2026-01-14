@@ -30,6 +30,18 @@ export async function POST(request: NextRequest) {
     const tenantId = session.metadata?.tenantId;
 
     if (orderId && tenantId) {
+      const paymentIntentId = session.payment_intent as string;
+
+      // Idempotency check: don't process duplicate webhooks
+      const existingPayment = await prisma.payment.findFirst({
+        where: { providerPaymentId: paymentIntentId },
+      });
+
+      if (existingPayment) {
+        console.log(`Webhook already processed for payment ${paymentIntentId}`);
+        return NextResponse.json({ received: true });
+      }
+
       // Update order status
       await prisma.order.update({
         where: { id: orderId },
@@ -46,7 +58,7 @@ export async function POST(request: NextRequest) {
           currency: session.currency!.toUpperCase(),
           status: 'completed',
           provider: 'stripe',
-          providerPaymentId: session.payment_intent as string,
+          providerPaymentId: paymentIntentId,
         },
       });
     }
