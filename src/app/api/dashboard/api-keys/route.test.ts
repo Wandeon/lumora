@@ -2,7 +2,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from './route';
 import { NextRequest } from 'next/server';
-import type { Session } from 'next-auth';
 import type { Tenant } from '@/generated/prisma';
 
 // Mock auth
@@ -29,10 +28,18 @@ vi.mock('@/infrastructure/auth/api-key', () => ({
   generateApiKey: vi.fn(),
 }));
 
+// Import mocked modules after vi.mock declarations
 import { auth } from '@/infrastructure/auth/auth';
 import { prisma } from '@/shared/lib/db';
 import { hasFeature } from '@/shared/lib/features';
 import { generateApiKey } from '@/infrastructure/auth/api-key';
+
+// Cast to mocked functions
+const mockAuth = auth as unknown as ReturnType<typeof vi.fn>;
+const mockHasFeature = hasFeature as unknown as ReturnType<typeof vi.fn>;
+const mockGenerateApiKey = generateApiKey as unknown as ReturnType<
+  typeof vi.fn
+>;
 
 describe('Dashboard API Keys Route', () => {
   beforeEach(() => {
@@ -41,7 +48,7 @@ describe('Dashboard API Keys Route', () => {
 
   describe('POST /api/dashboard/api-keys', () => {
     it('should return 401 when not authenticated', async () => {
-      vi.mocked(auth).mockResolvedValue(null as unknown as Session);
+      mockAuth.mockResolvedValue(null);
 
       const request = new NextRequest(
         'http://localhost/api/dashboard/api-keys',
@@ -55,10 +62,10 @@ describe('Dashboard API Keys Route', () => {
     });
 
     it('should return 403 when tenant lacks api_access feature', async () => {
-      vi.mocked(auth).mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { tenantId: 'tenant-123' },
-      } as unknown as Session);
-      vi.mocked(hasFeature).mockResolvedValue(false);
+      });
+      mockHasFeature.mockResolvedValue(false);
 
       const request = new NextRequest(
         'http://localhost/api/dashboard/api-keys',
@@ -72,11 +79,11 @@ describe('Dashboard API Keys Route', () => {
     });
 
     it('should generate and return API key when authorized', async () => {
-      vi.mocked(auth).mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { tenantId: 'tenant-123' },
-      } as unknown as Session);
-      vi.mocked(hasFeature).mockResolvedValue(true);
-      vi.mocked(generateApiKey).mockReturnValue({
+      });
+      mockHasFeature.mockResolvedValue(true);
+      mockGenerateApiKey.mockReturnValue({
         key: 'lum_test123456789',
         hash: 'hash123456',
       });
@@ -103,11 +110,11 @@ describe('Dashboard API Keys Route', () => {
     });
 
     it('should call hasFeature with api_access', async () => {
-      vi.mocked(auth).mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { tenantId: 'tenant-123' },
-      } as unknown as Session);
-      vi.mocked(hasFeature).mockResolvedValue(true);
-      vi.mocked(generateApiKey).mockReturnValue({
+      });
+      mockHasFeature.mockResolvedValue(true);
+      mockGenerateApiKey.mockReturnValue({
         key: 'lum_test123456789',
         hash: 'hash123456',
       });
@@ -121,7 +128,7 @@ describe('Dashboard API Keys Route', () => {
       );
       await POST(request);
 
-      expect(hasFeature).toHaveBeenCalledWith('tenant-123', 'api_access');
+      expect(mockHasFeature).toHaveBeenCalledWith('tenant-123', 'api_access');
     });
   });
 });
