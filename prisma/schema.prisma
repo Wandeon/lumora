@@ -1,0 +1,555 @@
+// Lumora - Photo Studio SaaS Platform
+// Multi-tenant schema with DDD bounded contexts
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// IDENTITY & ACCESS BOUNDED CONTEXT
+// ============================================================================
+
+enum TenantTier {
+  starter
+  pro
+  studio
+}
+
+enum TenantStatus {
+  active
+  suspended
+  cancelled
+}
+
+model Tenant {
+  id           String       @id @default(uuid())
+  slug         String       @unique @db.VarChar(63)
+  name         String       @db.VarChar(255)
+  tier         TenantTier   @default(starter)
+  status       TenantStatus @default(active)
+  customDomain String?      @unique @map("custom_domain") @db.VarChar(255)
+  logoUrl      String?      @map("logo_url")
+  brandColor   String?      @map("brand_color") @db.VarChar(7)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  users          User[]
+  galleries      Gallery[]
+  products       Product[]
+  orders         Order[]
+  coupons        Coupon[]
+  subscriptions  Subscription[]
+  invoices       Invoice[]
+  featureFlags   TenantFeatureFlag[]
+  storageUsage   StorageUsage?
+
+  @@index([slug])
+  @@index([customDomain])
+  @@map("tenants")
+}
+
+enum UserRole {
+  owner
+  admin
+  editor
+  viewer
+}
+
+model User {
+  id            String    @id @default(uuid())
+  tenantId      String    @map("tenant_id")
+  email         String    @db.VarChar(255)
+  passwordHash  String?   @map("password_hash")
+  name          String    @db.VarChar(255)
+  role          UserRole  @default(viewer)
+  avatarUrl     String?   @map("avatar_url")
+  emailVerified DateTime? @map("email_verified")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessions Session[]
+  orders   Order[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([email])
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  sessionToken String   @unique @map("session_token")
+  expires      DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ============================================================================
+// GALLERY BOUNDED CONTEXT
+// ============================================================================
+
+enum GalleryStatus {
+  draft
+  published
+  archived
+}
+
+enum GalleryVisibility {
+  public
+  private
+  code_protected
+}
+
+model Gallery {
+  id           String            @id @default(uuid())
+  tenantId     String            @map("tenant_id")
+  code         String            @unique @db.VarChar(12)
+  title        String            @db.VarChar(255)
+  description  String?           @db.Text
+  status       GalleryStatus     @default(draft)
+  visibility   GalleryVisibility @default(code_protected)
+  coverPhotoId String?           @map("cover_photo_id")
+  photoCount   Int               @default(0) @map("photo_count")
+  sessionPrice Int?              @map("session_price") // in cents
+  expiresAt    DateTime?         @map("expires_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  tenant        Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  photos        Photo[]
+  accessCodes   GalleryAccessCode[]
+  favorites     Favorite[]
+  orderItems    OrderItem[]
+  appliedCoupon GalleryCoupon?
+
+  @@index([tenantId])
+  @@index([code])
+  @@index([status])
+  @@map("galleries")
+}
+
+model Photo {
+  id           String   @id @default(uuid())
+  galleryId    String   @map("gallery_id")
+  filename     String   @db.VarChar(255)
+  originalKey  String   @map("original_key") @db.VarChar(500)
+  thumbnailKey String   @map("thumbnail_key") @db.VarChar(500)
+  webKey       String   @map("web_key") @db.VarChar(500)
+  width        Int
+  height       Int
+  sizeBytes    Int      @map("size_bytes")
+  mimeType     String   @map("mime_type") @db.VarChar(50)
+  sortOrder    Int      @default(0) @map("sort_order")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+
+  // Relations
+  gallery    Gallery     @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  favorites  Favorite[]
+  orderItems OrderItem[]
+
+  @@index([galleryId])
+  @@index([sortOrder])
+  @@map("photos")
+}
+
+model GalleryAccessCode {
+  id        String    @id @default(uuid())
+  galleryId String    @map("gallery_id")
+  code      String    @unique @db.VarChar(20)
+  label     String?   @db.VarChar(100) // e.g., "Family Smith"
+  usedAt    DateTime? @map("used_at")
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([galleryId])
+  @@index([code])
+  @@map("gallery_access_codes")
+}
+
+model Favorite {
+  id         String   @id @default(uuid())
+  galleryId  String   @map("gallery_id")
+  photoId    String   @map("photo_id")
+  sessionKey String   @map("session_key") @db.VarChar(100) // anonymous session identifier
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  photo   Photo   @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@unique([galleryId, photoId, sessionKey])
+  @@index([galleryId])
+  @@index([sessionKey])
+  @@map("favorites")
+}
+
+// ============================================================================
+// CATALOG & PRICING BOUNDED CONTEXT
+// ============================================================================
+
+enum ProductType {
+  print
+  digital_download
+  magnet
+  canvas
+  album
+  other
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  tenantId    String      @map("tenant_id")
+  type        ProductType
+  name        String      @db.VarChar(255)
+  description String?     @db.Text
+  price       Int         // in cents
+  isActive    Boolean     @default(true) @map("is_active")
+  sortOrder   Int         @default(0) @map("sort_order")
+  metadata    Json?       // size, dimensions, etc.
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([tenantId])
+  @@index([type])
+  @@map("products")
+}
+
+enum CouponType {
+  percentage
+  fixed_amount
+}
+
+model Coupon {
+  id             String     @id @default(uuid())
+  tenantId       String     @map("tenant_id")
+  code           String     @db.VarChar(50)
+  type           CouponType
+  value          Int        // percentage (0-100) or amount in cents
+  minOrderAmount Int?       @map("min_order_amount") // in cents
+  maxUses        Int?       @map("max_uses")
+  usedCount      Int        @default(0) @map("used_count")
+  validFrom      DateTime?  @map("valid_from")
+  validUntil     DateTime?  @map("valid_until")
+  isActive       Boolean    @default(true) @map("is_active")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  galleryCoupons  GalleryCoupon[]
+  orders          Order[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([code])
+  @@map("coupons")
+}
+
+model GalleryCoupon {
+  id        String   @id @default(uuid())
+  galleryId String   @unique @map("gallery_id")
+  couponId  String   @map("coupon_id")
+  appliedAt DateTime @default(now()) @map("applied_at")
+
+  // Relations
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  coupon  Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@map("gallery_coupons")
+}
+
+// ============================================================================
+// ORDERS & FULFILLMENT BOUNDED CONTEXT
+// ============================================================================
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+  refunded
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  tenantId        String      @map("tenant_id")
+  userId          String?     @map("user_id")
+  orderNumber     String      @unique @map("order_number") @db.VarChar(20)
+  status          OrderStatus @default(pending)
+  subtotal        Int         // in cents
+  discount        Int         @default(0) // in cents
+  tax             Int         @default(0) // in cents
+  total           Int         // in cents
+  currency        String      @default("EUR") @db.VarChar(3)
+  couponId        String?     @map("coupon_id")
+  customerEmail   String      @map("customer_email") @db.VarChar(255)
+  customerName    String      @map("customer_name") @db.VarChar(255)
+  customerPhone   String?     @map("customer_phone") @db.VarChar(50)
+  shippingAddress Json?       @map("shipping_address")
+  notes           String?     @db.Text
+  paidAt          DateTime?   @map("paid_at")
+  shippedAt       DateTime?   @map("shipped_at")
+  deliveredAt     DateTime?   @map("delivered_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  tenant   Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user     User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coupon   Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  items    OrderItem[]
+  payments Payment[]
+  invoice  Invoice?
+
+  @@index([tenantId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([customerEmail])
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String  @id @default(uuid())
+  orderId    String  @map("order_id")
+  productId  String  @map("product_id")
+  galleryId  String? @map("gallery_id")
+  photoId    String? @map("photo_id")
+  quantity   Int     @default(1)
+  unitPrice  Int     @map("unit_price") // in cents
+  totalPrice Int     @map("total_price") // in cents
+  metadata   Json?   // custom options, size selections, etc.
+
+  // Relations
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  gallery Gallery? @relation(fields: [galleryId], references: [id], onDelete: SetNull)
+  photo   Photo?   @relation(fields: [photoId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// ============================================================================
+// PAYMENTS & BILLING BOUNDED CONTEXT
+// ============================================================================
+
+enum PaymentStatus {
+  pending
+  processing
+  succeeded
+  failed
+  refunded
+  cancelled
+}
+
+enum PaymentProvider {
+  stripe
+  paypal
+  manual
+}
+
+model Payment {
+  id                String          @id @default(uuid())
+  orderId           String          @map("order_id")
+  provider          PaymentProvider
+  providerPaymentId String?         @map("provider_payment_id") @db.VarChar(255)
+  amount            Int             // in cents
+  currency          String          @default("EUR") @db.VarChar(3)
+  status            PaymentStatus   @default(pending)
+  metadata          Json?
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([providerPaymentId])
+  @@map("payments")
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  cancelled
+  expired
+}
+
+model Subscription {
+  id                     String             @id @default(uuid())
+  tenantId               String             @unique @map("tenant_id")
+  stripeCustomerId       String?            @map("stripe_customer_id") @db.VarChar(255)
+  stripeSubscriptionId   String?            @unique @map("stripe_subscription_id") @db.VarChar(255)
+  tier                   TenantTier
+  status                 SubscriptionStatus @default(trialing)
+  currentPeriodStart     DateTime           @map("current_period_start")
+  currentPeriodEnd       DateTime           @map("current_period_end")
+  cancelAtPeriodEnd      Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt              DateTime           @default(now()) @map("created_at")
+  updatedAt              DateTime           @updatedAt @map("updated_at")
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([stripeCustomerId])
+  @@map("subscriptions")
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  overdue
+  cancelled
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  tenantId      String        @map("tenant_id")
+  orderId       String?       @unique @map("order_id")
+  invoiceNumber String        @unique @map("invoice_number") @db.VarChar(20)
+  status        InvoiceStatus @default(draft)
+  subtotal      Int           // in cents
+  tax           Int           @default(0) // in cents
+  total         Int           // in cents
+  currency      String        @default("EUR") @db.VarChar(3)
+  dueDate       DateTime?     @map("due_date")
+  paidAt        DateTime?     @map("paid_at")
+  customerInfo  Json          @map("customer_info")
+  lineItems     Json          @map("line_items")
+  notes         String?       @db.Text
+  pdfUrl        String?       @map("pdf_url")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  order  Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([invoiceNumber])
+  @@map("invoices")
+}
+
+// ============================================================================
+// NOTIFICATIONS BOUNDED CONTEXT
+// ============================================================================
+
+enum NotificationType {
+  gallery_ready
+  order_confirmed
+  order_shipped
+  payment_received
+  reminder
+  custom
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  tenantId    String           @map("tenant_id")
+  type        NotificationType
+  recipientId String?          @map("recipient_id")
+  email       String           @db.VarChar(255)
+  subject     String           @db.VarChar(255)
+  body        String           @db.Text
+  sentAt      DateTime?        @map("sent_at")
+  failedAt    DateTime?        @map("failed_at")
+  errorMsg    String?          @map("error_msg")
+  metadata    Json?
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([email])
+  @@index([type])
+  @@map("notifications")
+}
+
+// ============================================================================
+// STORAGE BOUNDED CONTEXT
+// ============================================================================
+
+model StorageUsage {
+  id          String   @id @default(uuid())
+  tenantId    String   @unique @map("tenant_id")
+  totalBytes  BigInt   @default(0) @map("total_bytes")
+  photoCount  Int      @default(0) @map("photo_count")
+  limitBytes  BigInt   @map("limit_bytes") // based on tier
+  lastUpdated DateTime @default(now()) @map("last_updated")
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("storage_usage")
+}
+
+// ============================================================================
+// FEATURE FLAGS (Module toggles per tenant)
+// ============================================================================
+
+model TenantFeatureFlag {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  feature   String   @db.VarChar(50) // e.g., "print_orders", "payments", "invoices"
+  enabled   Boolean  @default(false)
+  config    Json?    // feature-specific configuration
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, feature])
+  @@index([tenantId])
+  @@map("tenant_feature_flags")
+}
+
+// ============================================================================
+// AUDIT LOG (Compliance & debugging)
+// ============================================================================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  tenantId   String?  @map("tenant_id")
+  userId     String?  @map("user_id")
+  action     String   @db.VarChar(100)
+  entityType String   @map("entity_type") @db.VarChar(50)
+  entityId   String   @map("entity_id")
+  oldValue   Json?    @map("old_value")
+  newValue   Json?    @map("new_value")
+  ipAddress  String?  @map("ip_address") @db.VarChar(45)
+  userAgent  String?  @map("user_agent") @db.VarChar(500)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
