@@ -41,6 +41,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "node_modules/**",
     "coverage/**",
+    // Prisma generated files
+    "src/generated/**",
   ]),
 ]);
 
