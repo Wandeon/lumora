@@ -28,13 +28,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
+  let body: {
+    title?: string;
+    description?: string;
+    visibility?: 'public' | 'private' | 'code_protected';
+    sessionPrice?: number;
+    expiresAt?: string;
+  };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
 
   const result = await createGallery({
     tenantId: session.user.tenantId,
-    title: body.title,
+    title: body.title ?? '',
     description: body.description,
-    visibility: body.visibility,
+    visibility: body.visibility ?? 'code_protected',
     sessionPrice: body.sessionPrice,
     expiresAt: body.expiresAt ? new Date(body.expiresAt) : undefined,
   });

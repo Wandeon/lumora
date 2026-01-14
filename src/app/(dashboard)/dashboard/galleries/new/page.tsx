@@ -42,7 +42,10 @@ export default function NewGalleryPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-3">
+          <div
+            role="alert"
+            className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-3"
+          >
             <p className="text-sm text-rose-400">{error}</p>
           </div>
         )}

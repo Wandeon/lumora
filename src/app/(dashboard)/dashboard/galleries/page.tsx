@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/shared/lib/db';
 import { auth } from '@/infrastructure/auth/auth';
 import { GalleryTable } from '@/shared/ui/gallery-table';
@@ -8,7 +9,7 @@ export default async function GalleriesPage() {
   const tenantId = session?.user?.tenantId;
 
   if (!tenantId) {
-    return null;
+    redirect('/login');
   }
 
   const galleries = await prisma.gallery.findMany({
