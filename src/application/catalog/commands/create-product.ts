@@ -38,17 +38,22 @@ export async function createProduct(
     return Result.fail('Product catalog requires Pro tier or higher');
   }
 
-  const product = await prisma.product.create({
-    data: {
-      id: randomUUID(),
-      tenantId,
-      name,
-      description,
-      type,
-      price,
-      metadata: metadata || {},
-    },
-  });
+  try {
+    const product = await prisma.product.create({
+      data: {
+        id: randomUUID(),
+        tenantId,
+        name,
+        description,
+        type,
+        price,
+        metadata: metadata || {},
+      },
+    });
 
-  return Result.ok({ id: product.id });
+    return Result.ok({ id: product.id });
+  } catch (error) {
+    console.error('Failed to create product:', error);
+    return Result.fail('Failed to create product');
+  }
 }

@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/infrastructure/auth/auth';
 import { createProduct } from '@/application/catalog/commands/create-product';
 import { getProducts } from '@/application/catalog/queries/get-products';
+import { hasFeature } from '@/shared/lib/features';
 
 export async function GET() {
   const session = await auth();
 
   if (!session?.user?.tenantId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Check feature access - products require Pro tier
+  const canAccess = await hasFeature(session.user.tenantId, 'print_orders');
+  if (!canAccess) {
+    return NextResponse.json(
+      { error: 'Product catalog requires Pro tier or higher' },
+      { status: 403 }
+    );
   }
 
   const products = await getProducts(session.user.tenantId);
