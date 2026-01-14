@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -8,14 +8,26 @@ interface LoginFormProps {
   tenantId: string;
 }
 
-export function LoginForm({ tenantId }: LoginFormProps) {
+function getSafeCallbackUrl(callbackUrl: string | null): string {
+  if (!callbackUrl) {
+    return '/dashboard';
+  }
+  // Only allow relative URLs starting with /
+  // Reject absolute URLs (could be open redirect)
+  if (callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
+    return callbackUrl;
+  }
+  return '/dashboard';
+}
+
+function LoginFormContent({ tenantId }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const callbackUrl = getSafeCallbackUrl(searchParams.get('callbackUrl'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,5 +115,21 @@ export function LoginForm({ tenantId }: LoginFormProps) {
         {isLoading ? 'Prijava...' : 'Prijavi se'}
       </button>
     </form>
+  );
+}
+
+export function LoginForm({ tenantId }: LoginFormProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-4 animate-pulse">
+          <div className="h-10 bg-gray-800 rounded-lg" />
+          <div className="h-10 bg-gray-800 rounded-lg" />
+          <div className="h-10 bg-emerald-600/50 rounded-lg" />
+        </div>
+      }
+    >
+      <LoginFormContent tenantId={tenantId} />
+    </Suspense>
   );
 }
