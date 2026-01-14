@@ -40,7 +40,11 @@ export function GalleryCodeForm({ tenantSlug }: GalleryCodeFormProps) {
 
         <div className="space-y-4">
           <div>
+            <label htmlFor="gallery-code" className="sr-only">
+              Kod galerije
+            </label>
             <input
+              id="gallery-code"
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -51,8 +55,18 @@ export function GalleryCodeForm({ tenantSlug }: GalleryCodeFormProps) {
               maxLength={12}
               autoComplete="off"
               autoFocus
+              aria-describedby={error ? 'code-error' : undefined}
+              aria-invalid={!!error}
             />
-            {error && <p className="mt-2 text-sm text-rose-600">{error}</p>}
+            {error && (
+              <p
+                id="code-error"
+                className="mt-2 text-sm text-rose-600"
+                role="alert"
+              >
+                {error}
+              </p>
+            )}
           </div>
 
           <button
