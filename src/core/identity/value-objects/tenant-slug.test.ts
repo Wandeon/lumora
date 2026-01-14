@@ -19,14 +19,6 @@ describe('TenantSlug', () => {
       }
     });
 
-    it('should reject reserved slugs', () => {
-      const reservedSlugs = ['www', 'api', 'admin', 'app', 'dashboard'];
-      for (const slug of reservedSlugs) {
-        const result = TenantSlug.create(slug);
-        expect(result.success).toBe(false);
-      }
-    });
-
     it('should reject all reserved slugs', () => {
       const allReservedSlugs = [
         'www',
@@ -51,22 +43,36 @@ describe('TenantSlug', () => {
       for (const slug of allReservedSlugs) {
         const result = TenantSlug.create(slug);
         expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error).toContain('reserved');
+        }
       }
     });
 
     it('should reject slug shorter than 3 characters', () => {
       const result = TenantSlug.create('ab');
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain('at least 3 characters');
+      }
     });
 
     it('should reject slug with invalid characters', () => {
       const result = TenantSlug.create('my_studio');
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain(
+          'lowercase letters, numbers, and hyphens'
+        );
+      }
     });
 
     it('should reject empty slug', () => {
       const result = TenantSlug.create('');
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain('cannot be empty');
+      }
     });
 
     it('should reject slug longer than 63 characters', () => {

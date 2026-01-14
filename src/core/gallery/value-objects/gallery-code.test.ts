@@ -22,21 +22,33 @@ describe('GalleryCode', () => {
     it('should reject empty code', () => {
       const result = GalleryCode.create('');
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain('cannot be empty');
+      }
     });
 
     it('should reject code shorter than 4 characters', () => {
       const result = GalleryCode.create('ABC');
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain('4-12 alphanumeric');
+      }
     });
 
     it('should reject code longer than 12 characters', () => {
       const result = GalleryCode.create('ABCDEFGHIJKLM');
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain('4-12 alphanumeric');
+      }
     });
 
     it('should reject code with special characters', () => {
       const result = GalleryCode.create('ABC-123');
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain('alphanumeric');
+      }
     });
 
     it('should trim whitespace', () => {
