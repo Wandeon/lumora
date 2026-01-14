@@ -34,10 +34,13 @@ export const authConfig: NextAuthConfig = {
           include: { tenant: true },
         });
 
-        if (!user || !user.passwordHash) return null;
+        // Prevent timing attacks by always performing bcrypt comparison
+        const dummyHash =
+          '$2a$10$0000000000000000000000000000000000000000000000000000';
+        const hashToCompare = user?.passwordHash || dummyHash;
+        const passwordMatch = await bcrypt.compare(password, hashToCompare);
 
-        const passwordMatch = await bcrypt.compare(password, user.passwordHash);
-        if (!passwordMatch) return null;
+        if (!user || !passwordMatch) return null;
 
         // Update last login
         await prisma.user.update({
