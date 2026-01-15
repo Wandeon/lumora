@@ -2,13 +2,13 @@
 // Multi-tenant schema with DDD bounded contexts
 
 generator client {
-  provider   = "prisma-client-js"
-  output     = "../src/generated/prisma"
-  engineType = "library"
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
