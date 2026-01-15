@@ -1,0 +1,131 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npx tsc --noEmit
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run test:run
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/coverage-final.json
+          fail_ci_if_error: false
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run build
+        env:
+          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
+          AUTH_SECRET: 'test-secret-at-least-32-characters-long-here'
+          AUTH_URL: 'http://localhost:3000'
+          STRIPE_SECRET_KEY: 'sk_test_dummy'
+          STRIPE_PUBLISHABLE_KEY: 'pk_test_dummy'
+          STRIPE_WEBHOOK_SECRET: 'whsec_dummy'
+          R2_ACCESS_KEY_ID: 'test'
+          R2_SECRET_ACCESS_KEY: 'test'
+          R2_BUCKET: 'test'
+          R2_ENDPOINT: 'https://test.r2.cloudflarestorage.com'
+          R2_PUBLIC_URL: 'https://cdn.test.com'
+          RESEND_API_KEY: 're_test'
+          EMAIL_FROM: 'test@test.com'
+          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
+          NEXT_PUBLIC_APP_NAME: 'Lumora'
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build]
+    continue-on-error: true # E2E tests are optional until properly configured
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run db:generate
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E Tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
+          AUTH_SECRET: 'test-secret-at-least-32-characters-long-here'
+          AUTH_URL: 'http://localhost:3000'
+          STRIPE_SECRET_KEY: 'sk_test_dummy'
+          STRIPE_PUBLISHABLE_KEY: 'pk_test_dummy'
+          STRIPE_WEBHOOK_SECRET: 'whsec_dummy'
+          R2_ACCESS_KEY_ID: 'test'
+          R2_SECRET_ACCESS_KEY: 'test'
+          R2_BUCKET: 'test'
+          R2_ENDPOINT: 'https://test.r2.cloudflarestorage.com'
+          R2_PUBLIC_URL: 'https://cdn.test.com'
+          RESEND_API_KEY: 're_test'
+          EMAIL_FROM: 'test@test.com'
+          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
+          NEXT_PUBLIC_APP_NAME: 'Lumora'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

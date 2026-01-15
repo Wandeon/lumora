@@ -140,6 +140,33 @@ RESEND_API_KEY="re_..."
 | `npm run db:generate` | Generate Prisma client   |
 | `npm run db:migrate`  | Run database migrations  |
 | `npm run db:studio`   | Open Prisma Studio       |
+| `npm run test`        | Run unit tests (watch)   |
+| `npm run test:run`    | Run unit tests once      |
+| `npm run test:e2e`    | Run E2E tests            |
+| `npm run test:e2e:ui` | Run E2E tests with UI    |
+
+## Testing
+
+```bash
+# Run unit tests in watch mode
+npm run test
+
+# Run unit tests once (CI mode)
+npm run test:run
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with interactive UI
+npm run test:e2e:ui
+```
+
+## API Documentation
+
+Lumora provides a public API for Studio tier tenants. See [docs/API.md](docs/API.md) for complete documentation.
 
 ## Pricing Tiers
 
@@ -164,6 +191,7 @@ Proprietary — All rights reserved.
 ## Links
 
 - [Architecture Documentation](docs/ARCHITECTURE.md)
+- [API Documentation](docs/API.md)
 - [ADR: DDD Architecture](docs/adr/001-ddd-architecture.md)
 - [ADR: Multi-Tenancy](docs/adr/002-multi-tenancy-strategy.md)
 - [ADR: Feature Flags](docs/adr/003-feature-flag-system.md)
