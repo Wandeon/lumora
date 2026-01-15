@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lumora-app
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3009:3000'
+    environment:
+      - DATABASE_URL=postgresql://lumora:${POSTGRES_PASSWORD}@postgres:5432/lumora
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_URL=https://lumora.genai.hr
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_BUCKET=${R2_BUCKET}
+      - R2_ENDPOINT=${R2_ENDPOINT}
+      - R2_PUBLIC_URL=${R2_PUBLIC_URL}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - NEXT_PUBLIC_APP_URL=https://lumora.genai.hr
+      - NEXT_PUBLIC_APP_NAME=Lumora
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lumora-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: lumora-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=lumora
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=lumora
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U lumora -d lumora']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lumora-network
+
+networks:
+  lumora-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
