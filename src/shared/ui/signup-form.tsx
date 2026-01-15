@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 function SignupFormContent() {
@@ -11,7 +11,7 @@ function SignupFormContent() {
   const [studioName, setStudioName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [success, setSuccess] = useState<{ tenantSlug: string } | null>(null);
   const searchParams = useSearchParams();
   const tier = searchParams.get('tier') || 'starter';
 
@@ -34,13 +34,38 @@ function SignupFormContent() {
         return;
       }
 
-      router.push('/login?registered=true');
+      setSuccess({ tenantSlug: data.tenantSlug });
     } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (success) {
+    const loginUrl = `https://${success.tenantSlug}.lumora.genai.hr/login`;
+    return (
+      <div className="text-center space-y-4">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+          <h2 className="text-lg font-semibold text-emerald-400 mb-2">
+            Account Created!
+          </h2>
+          <p className="text-gray-300 text-sm mb-4">
+            Your studio is ready. Log in at your studio URL:
+          </p>
+          <a
+            href={loginUrl}
+            className="block w-full py-3 px-4 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 text-center"
+          >
+            Go to {success.tenantSlug}.lumora.genai.hr
+          </a>
+        </div>
+        <p className="text-gray-500 text-xs">
+          Bookmark your studio URL for easy access
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

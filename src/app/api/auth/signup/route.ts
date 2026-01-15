@@ -10,15 +10,23 @@ const signupSchema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   studioName: z.string().min(1, 'Studio name is required'),
-  tier: z.enum(['starter', 'pro', 'studio']).default('starter'),
+  // tier is accepted but ignored - all new signups start on starter tier
+  tier: z.enum(['starter', 'pro', 'studio']).optional(),
 });
 
 function generateSlug(name: string): string {
-  return name
+  let slug = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 63);
+    .replace(/^-+|-+$/g, '');
+
+  // Ensure non-empty slug with fallback
+  if (!slug || slug.length === 0) {
+    slug = 'studio';
+  }
+
+  // Trim to max 63 chars (subdomain limit)
+  return slug.slice(0, 63);
 }
 
 const RESERVED_SLUGS = new Set([
@@ -57,7 +65,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password, studioName, tier } = parsed.data;
+    const { name, email, password, studioName } = parsed.data;
+    // Force starter tier for all new signups (upgrade via billing)
+    const tier = 'starter' as const;
 
     // Generate and validate slug
     let slug = generateSlug(studioName);
@@ -73,6 +83,9 @@ export async function POST(request: Request) {
     if (existingTenant) {
       slug = `${slug}-${Date.now().toString(36)}`;
     }
+
+    // Ensure slug stays within 63 char limit after suffix
+    slug = slug.slice(0, 63);
 
     // Check if email already exists for any tenant
     const existingUser = await prisma.user.findFirst({

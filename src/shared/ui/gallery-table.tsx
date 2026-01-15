@@ -81,7 +81,7 @@ export function GalleryTable({ galleries }: GalleryTableProps) {
               </td>
               <td className="px-4 py-3 text-right">
                 <Link
-                  href={`/dashboard/galleries/${gallery.id}`}
+                  href={`/dashboard/galleries/${gallery.id}/edit`}
                   className="text-emerald-400 hover:text-emerald-300"
                 >
                   Uredi
