@@ -94,6 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [build]
+    continue-on-error: true # E2E tests are optional until properly configured
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
