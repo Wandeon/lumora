@@ -5,6 +5,9 @@ import { prisma } from '@/shared/lib/db';
 import { hasFeature } from '@/shared/lib/features';
 import { generateApiKey } from '@/infrastructure/auth/api-key';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 export async function POST(_request: NextRequest) {
   const session = await auth();
 

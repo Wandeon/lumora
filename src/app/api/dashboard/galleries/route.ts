@@ -3,6 +3,9 @@ import { auth } from '@/infrastructure/auth/auth';
 import { prisma } from '@/shared/lib/db';
 import { createGallery } from '@/application/gallery/commands/create-gallery';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 export async function GET() {
   const session = await auth();
 

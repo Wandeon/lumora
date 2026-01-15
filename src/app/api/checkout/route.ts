@@ -3,6 +3,9 @@ import { prisma } from '@/shared/lib/db';
 import { createCheckoutSession } from '@/infrastructure/payments/stripe-client';
 import { env } from '@/shared/config/env';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   let body: { orderId?: string };
   try {

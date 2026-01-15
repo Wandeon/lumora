@@ -4,6 +4,9 @@ import { validateApiKey } from '@/infrastructure/auth/api-key';
 import { hasFeature } from '@/shared/lib/features';
 import { prisma } from '@/shared/lib/db';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   const apiKey = request.headers.get('x-api-key');
 

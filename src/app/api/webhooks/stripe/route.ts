@@ -4,6 +4,9 @@ import { prisma } from '@/shared/lib/db';
 import { env } from '@/shared/config/env';
 import { randomUUID } from 'crypto';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
