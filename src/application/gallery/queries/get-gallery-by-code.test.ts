@@ -29,6 +29,7 @@ describe('getGalleryByCode', () => {
       description: 'Beautiful summer wedding photos',
       status: 'published',
       visibility: 'code_protected',
+      coverPhotoId: null,
       photoCount: 2,
       sessionPrice: 2500,
       expiresAt: null,
@@ -44,12 +45,10 @@ describe('getGalleryByCode', () => {
           thumbnailKey: 'tenant-123/gallery-123/thumb/IMG_001.jpg',
           width: 1920,
           height: 1080,
-          size: 1000000,
-          hash: 'abc123',
+          sizeBytes: 1000000,
+          mimeType: 'image/jpeg',
           sortOrder: 0,
-          metadata: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          uploadedAt: new Date(),
         },
         {
           id: 'photo-2',
@@ -60,12 +59,10 @@ describe('getGalleryByCode', () => {
           thumbnailKey: 'tenant-123/gallery-123/thumb/IMG_002.jpg',
           width: 1920,
           height: 1280,
-          size: 1200000,
-          hash: 'def456',
+          sizeBytes: 1200000,
+          mimeType: 'image/jpeg',
           sortOrder: 1,
-          metadata: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          uploadedAt: new Date(),
         },
       ],
     };
@@ -85,10 +82,10 @@ describe('getGalleryByCode', () => {
     expect(result?.photos).toHaveLength(2);
 
     // Check photo URLs are constructed correctly
-    expect(result?.photos[0].thumbnail).toBe(
+    expect(result?.photos[0]?.thumbnail).toBe(
       'https://cdn.test.com/tenant-123/gallery-123/thumb/IMG_001.jpg'
     );
-    expect(result?.photos[0].fullsize).toBe(
+    expect(result?.photos[0]?.fullsize).toBe(
       'https://cdn.test.com/tenant-123/gallery-123/web/IMG_001.jpg'
     );
   });
@@ -111,6 +108,7 @@ describe('getGalleryByCode', () => {
       description: null,
       status: 'published',
       visibility: 'code_protected',
+      coverPhotoId: null,
       photoCount: 0,
       sessionPrice: null,
       expiresAt: pastDate,
@@ -136,6 +134,7 @@ describe('getGalleryByCode', () => {
       description: null,
       status: 'published',
       visibility: 'code_protected',
+      coverPhotoId: null,
       photoCount: 0,
       sessionPrice: null,
       expiresAt: futureDate,
@@ -176,6 +175,7 @@ describe('getGalleryByCode', () => {
       description: null,
       status: 'published',
       visibility: 'code_protected',
+      coverPhotoId: null,
       photoCount: 0,
       sessionPrice: null,
       expiresAt: null,
@@ -202,6 +202,7 @@ describe('getGalleryByCode', () => {
       description: null,
       status: 'published',
       visibility: 'code_protected',
+      coverPhotoId: null,
       photoCount: 0,
       sessionPrice: null,
       expiresAt: null,
@@ -227,6 +228,7 @@ describe('getGalleryByCode', () => {
       description: 'Free gallery',
       status: 'published',
       visibility: 'code_protected',
+      coverPhotoId: null,
       photoCount: 0,
       sessionPrice: null,
       expiresAt: null,
@@ -252,6 +254,7 @@ describe('getGalleryByCode', () => {
       description: null,
       status: 'published',
       visibility: 'code_protected',
+      coverPhotoId: null,
       photoCount: 3,
       sessionPrice: null,
       expiresAt: null,
@@ -267,12 +270,10 @@ describe('getGalleryByCode', () => {
           thumbnailKey: 'thumb/first.jpg',
           width: 800,
           height: 600,
-          size: 100000,
-          hash: 'hash1',
+          sizeBytes: 100000,
+          mimeType: 'image/jpeg',
           sortOrder: 0,
-          metadata: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          uploadedAt: new Date(),
         },
         {
           id: 'photo-b',
@@ -283,12 +284,10 @@ describe('getGalleryByCode', () => {
           thumbnailKey: 'thumb/second.jpg',
           width: 800,
           height: 600,
-          size: 100000,
-          hash: 'hash2',
+          sizeBytes: 100000,
+          mimeType: 'image/jpeg',
           sortOrder: 1,
-          metadata: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          uploadedAt: new Date(),
         },
         {
           id: 'photo-c',
@@ -299,12 +298,10 @@ describe('getGalleryByCode', () => {
           thumbnailKey: 'thumb/third.jpg',
           width: 800,
           height: 600,
-          size: 100000,
-          hash: 'hash3',
+          sizeBytes: 100000,
+          mimeType: 'image/jpeg',
           sortOrder: 2,
-          metadata: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          uploadedAt: new Date(),
         },
       ],
     };
@@ -313,8 +310,8 @@ describe('getGalleryByCode', () => {
 
     const result = await getGalleryByCode('SORT1234');
 
-    expect(result?.photos[0].filename).toBe('first.jpg');
-    expect(result?.photos[1].filename).toBe('second.jpg');
-    expect(result?.photos[2].filename).toBe('third.jpg');
+    expect(result?.photos[0]?.filename).toBe('first.jpg');
+    expect(result?.photos[1]?.filename).toBe('second.jpg');
+    expect(result?.photos[2]?.filename).toBe('third.jpg');
   });
 });

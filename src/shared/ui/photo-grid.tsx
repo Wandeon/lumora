@@ -75,8 +75,8 @@ export function PhotoGrid({
           photos={photos}
           initialIndex={selectedIndex}
           onClose={() => setSelectedIndex(null)}
-          onFavoriteToggle={onFavoriteToggle}
           favorites={favorites}
+          {...(onFavoriteToggle ? { onFavoriteToggle } : {})}
         />
       )}
     </>

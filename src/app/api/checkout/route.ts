@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    include: { items: true, tenant: true },
+    include: { items: { include: { product: true } }, tenant: true },
   });
 
   if (!order) {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     tenantId: order.tenantId,
     orderId: order.id,
     items: order.items.map((item) => ({
-      name: item.productName,
+      name: item.product.name,
       amount: item.unitPrice,
       quantity: item.quantity,
     })),

@@ -10,12 +10,13 @@ export const createGallerySchema = z.object({
   description: z.string().optional(),
   visibility: z
     .enum(['public', 'private', 'code_protected'])
+    .optional()
     .default('code_protected'),
   sessionPrice: z.number().int().positive().optional(), // in cents
   expiresAt: z.date().optional(),
 });
 
-export type CreateGalleryInput = z.infer<typeof createGallerySchema>;
+export type CreateGalleryInput = z.input<typeof createGallerySchema>;
 
 export async function createGallery(
   input: CreateGalleryInput
@@ -60,11 +61,11 @@ export async function createGallery(
       tenantId,
       code,
       title,
-      description,
+      description: description ?? null,
       status: 'draft',
       visibility,
-      sessionPrice,
-      expiresAt,
+      sessionPrice: sessionPrice ?? null,
+      expiresAt: expiresAt ?? null,
     },
   });
 

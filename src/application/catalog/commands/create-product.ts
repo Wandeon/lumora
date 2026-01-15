@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { prisma } from '@/shared/lib/db';
+import { Prisma } from '@/generated/prisma';
 import { Result } from '@/core/shared';
 import { randomUUID } from 'crypto';
 import { hasFeature } from '@/shared/lib/features';
@@ -17,7 +18,7 @@ export const createProductSchema = z.object({
     'other',
   ]),
   price: z.number().int().positive(), // in cents
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
@@ -44,10 +45,10 @@ export async function createProduct(
         id: randomUUID(),
         tenantId,
         name,
-        description,
+        description: description ?? null,
         type,
         price,
-        metadata: metadata || {},
+        metadata: (metadata ?? {}) as Prisma.InputJsonValue,
       },
     });
 

@@ -45,18 +45,17 @@ export async function POST(request: NextRequest) {
       // Update order status
       await prisma.order.update({
         where: { id: orderId },
-        data: { status: 'paid' },
+        data: { status: 'confirmed' },
       });
 
       // Create payment record
       await prisma.payment.create({
         data: {
           id: randomUUID(),
-          tenantId,
           orderId,
           amount: session.amount_total!,
           currency: session.currency!.toUpperCase(),
-          status: 'completed',
+          status: 'succeeded',
           provider: 'stripe',
           providerPaymentId: paymentIntentId,
         },

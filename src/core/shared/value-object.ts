@@ -2,7 +2,7 @@
  * Base class for Value Objects
  * Value Objects are immutable and compared by their properties
  */
-export abstract class ValueObject<T extends Record<string, unknown>> {
+export abstract class ValueObject<T extends object> {
   protected readonly props: T;
 
   constructor(props: T) {
