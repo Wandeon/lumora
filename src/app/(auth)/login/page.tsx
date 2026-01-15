@@ -2,19 +2,39 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { LoginForm } from '@/shared/ui/login-form';
 import { getTenantFromHost } from '@/shared/lib/tenant-context';
+import { prisma } from '@/shared/lib/db';
 
-export default async function LoginPage() {
+interface Props {
+  searchParams: Promise<{ tenant?: string; registered?: string }>;
+}
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { tenant: tenantSlug, registered } = await searchParams;
   const headersList = await headers();
   const host = headersList.get('host') || '';
   const tenantIdHeader = headersList.get('x-tenant-id');
 
-  // Try to get tenant from header first (set by middleware), then from host
+  // Try to get tenant from: 1) query param, 2) header, 3) host subdomain
   let tenantId = tenantIdHeader;
+  let tenantName: string | null = null;
 
+  // Check query param first (from signup redirect)
+  if (!tenantId && tenantSlug) {
+    const tenant = await prisma.tenant.findUnique({
+      where: { slug: tenantSlug, status: 'active' },
+    });
+    if (tenant) {
+      tenantId = tenant.id;
+      tenantName = tenant.name;
+    }
+  }
+
+  // Then check host subdomain
   if (!tenantId) {
     const tenant = await getTenantFromHost(host);
     if (tenant) {
       tenantId = tenant.id;
+      tenantName = tenant.name;
     }
   }
 
@@ -24,7 +44,6 @@ export default async function LoginPage() {
   }
 
   // For development without a tenant, use a placeholder
-  // This allows testing the login page UI
   const effectiveTenantId = tenantId || 'development-tenant';
 
   return (
@@ -32,8 +51,20 @@ export default async function LoginPage() {
       <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-white">Lumora</h1>
-          <p className="text-gray-400 mt-1">Prijavite se u svoj studio</p>
+          {tenantName ? (
+            <p className="text-gray-400 mt-1">{tenantName}</p>
+          ) : (
+            <p className="text-gray-400 mt-1">Sign in to your studio</p>
+          )}
         </div>
+
+        {registered && (
+          <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <p className="text-sm text-emerald-400 text-center">
+              Account created! Please sign in.
+            </p>
+          </div>
+        )}
 
         <LoginForm tenantId={effectiveTenantId} />
       </div>

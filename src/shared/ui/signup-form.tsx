@@ -43,7 +43,7 @@ function SignupFormContent() {
   };
 
   if (success) {
-    const loginUrl = `https://${success.tenantSlug}.lumora.genai.hr/login`;
+    const loginUrl = `/login?tenant=${success.tenantSlug}&registered=true`;
     return (
       <div className="text-center space-y-4">
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
@@ -51,18 +51,15 @@ function SignupFormContent() {
             Account Created!
           </h2>
           <p className="text-gray-300 text-sm mb-4">
-            Your studio is ready. Log in at your studio URL:
+            Your studio <strong>{success.tenantSlug}</strong> is ready.
           </p>
-          <a
+          <Link
             href={loginUrl}
             className="block w-full py-3 px-4 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 text-center"
           >
-            Go to {success.tenantSlug}.lumora.genai.hr
-          </a>
+            Log in to your dashboard
+          </Link>
         </div>
-        <p className="text-gray-500 text-xs">
-          Bookmark your studio URL for easy access
-        </p>
       </div>
     );
   }
