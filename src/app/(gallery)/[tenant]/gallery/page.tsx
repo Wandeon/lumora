@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getGalleryByCode } from '@/application/gallery/queries/get-gallery-by-code';
-import { PhotoGrid } from '@/shared/ui/photo-grid';
+import { GalleryClient } from './gallery-client';
 
 interface Props {
   params: Promise<{ tenant: string }>;
@@ -51,7 +51,10 @@ export default async function GalleryPage({ params, searchParams }: Props) {
       </header>
 
       {/* Photo Grid */}
-      <PhotoGrid photos={gallery.photos} galleryCode={gallery.galleryCode} />
+      <GalleryClient
+        photos={gallery.photos}
+        galleryCode={gallery.galleryCode}
+      />
     </main>
   );
 }
