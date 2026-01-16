@@ -78,6 +78,23 @@ services:
     networks:
       - lumora-network
 
+  backup:
+    image: postgres:15-alpine
+    container_name: lumora-backup
+    restart: unless-stopped
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./scripts/backup.sh:/backup.sh:ro
+      - ./backups:/backups
+    entrypoint: ['/bin/sh', '-c']
+    command: ['while true; do /backup.sh; sleep 86400; done']
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lumora-network
+
 networks:
   lumora-network:
     driver: bridge
