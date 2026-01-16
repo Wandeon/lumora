@@ -6,11 +6,15 @@ import { verifyEmailTransport } from '@/infrastructure/email/email-client';
 export const runtime = 'nodejs';
 
 export async function GET() {
+  const startTime = Date.now();
+
   const checks = await Promise.allSettled([
     prisma.$queryRaw`SELECT 1`,
     pingRedis(),
     verifyEmailTransport(),
   ]);
+
+  const responseTime = Date.now() - startTime;
 
   const [dbCheck, redisCheck, smtpCheck] = checks;
 
@@ -27,6 +31,7 @@ export async function GET() {
     {
       status: allHealthy ? 'healthy' : 'degraded',
       timestamp: new Date().toISOString(),
+      responseTime,
       services,
     },
     { status: allHealthy ? 200 : 503 }
