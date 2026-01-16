@@ -3,7 +3,12 @@ import { stripe } from '@/infrastructure/payments/stripe-client';
 import { prisma } from '@/shared/lib/db';
 import { env } from '@/shared/config/env';
 import { randomUUID } from 'crypto';
-import { sendOrderStatusUpdate } from '@/infrastructure/email';
+import {
+  sendOrderStatusUpdate,
+  sendPaymentFailure,
+  sendStudioNewOrder,
+} from '@/infrastructure/email';
+import Stripe from 'stripe';
 
 // Force Node.js runtime for Prisma compatibility
 export const runtime = 'nodejs';
@@ -114,7 +119,87 @@ export async function POST(request: NextRequest) {
       }).catch((err) =>
         console.error('[EMAIL] Failed to send order status update:', err)
       );
+
+      // Send studio new order notification (fire and forget)
+      (async () => {
+        try {
+          // Get tenant with owner and order items count
+          const [tenant, itemCount] = await Promise.all([
+            prisma.tenant.findUnique({
+              where: { id: tenantId },
+              include: {
+                users: {
+                  where: { role: 'owner' },
+                  take: 1,
+                },
+              },
+            }),
+            prisma.orderItem.count({
+              where: { orderId },
+            }),
+          ]);
+
+          const owner = tenant?.users[0];
+          if (!owner) {
+            console.warn(
+              `[EMAIL] No owner found for tenant ${tenantId}, skipping studio notification`
+            );
+            return;
+          }
+
+          await sendStudioNewOrder({
+            studioEmail: owner.email,
+            studioName: tenant.name,
+            orderNumber: order.orderNumber,
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            itemCount,
+            total: order.total,
+            currency: order.currency,
+            dashboardUrl: `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${order.id}`,
+          });
+        } catch (err) {
+          console.error(
+            '[EMAIL] Failed to send studio new order notification:',
+            err
+          );
+        }
+      })();
     }
+  }
+
+  if (event.type === 'payment_intent.payment_failed') {
+    const intent = event.data.object as Stripe.PaymentIntent;
+    const orderId = intent.metadata?.orderId;
+
+    if (!orderId) {
+      console.warn('Payment failed event without orderId metadata');
+      return NextResponse.json({ received: true });
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { tenant: true },
+    });
+
+    if (!order) {
+      console.warn('Payment failed for unknown order:', orderId);
+      return NextResponse.json({ received: true });
+    }
+
+    // Send failure email (fire and forget)
+    sendPaymentFailure({
+      customerEmail: order.customerEmail,
+      customerName: order.customerName,
+      orderNumber: order.orderNumber,
+      amount: order.total,
+      currency: order.currency,
+      retryUrl: `${env.NEXT_PUBLIC_APP_URL}/order/${order.id}?token=${order.accessToken}`,
+    }).catch((err) =>
+      console.error('[EMAIL] Failed to send payment failure email:', err)
+    );
+
+    console.log('Payment failure handled for order:', order.orderNumber);
   }
 
   return NextResponse.json({ received: true });

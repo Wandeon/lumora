@@ -3,6 +3,8 @@ import { env } from '@/shared/config/env';
 import { orderConfirmationTemplate } from './templates/order-confirmation';
 import { orderStatusUpdateTemplate } from './templates/order-status-update';
 import { passwordResetTemplate } from './templates/password-reset';
+import { paymentFailureTemplate } from './templates/payment-failure';
+import { studioNewOrderTemplate } from './templates/studio-new-order';
 import { welcomeTemplate } from './templates/welcome';
 
 interface SendEmailParams {
@@ -80,6 +82,52 @@ export async function sendWelcome(params: {
   await sendEmail({
     to: params.email,
     subject: `Welcome to ${params.tenantName}`,
+    html,
+    text,
+  });
+}
+
+export async function sendPaymentFailure(params: {
+  customerEmail: string;
+  customerName: string;
+  orderNumber: string;
+  amount: number;
+  currency: string;
+  retryUrl: string;
+}): Promise<void> {
+  const { html, text } = paymentFailureTemplate(params);
+  await sendEmail({
+    to: params.customerEmail,
+    subject: `Payment Failed - Order ${params.orderNumber}`,
+    html,
+    text,
+  });
+}
+
+export async function sendStudioNewOrder(params: {
+  studioEmail: string;
+  studioName: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  itemCount: number;
+  total: number;
+  currency: string;
+  dashboardUrl: string;
+}): Promise<void> {
+  const { html, text } = studioNewOrderTemplate({
+    studioName: params.studioName,
+    orderNumber: params.orderNumber,
+    customerName: params.customerName,
+    customerEmail: params.customerEmail,
+    itemCount: params.itemCount,
+    total: params.total,
+    currency: params.currency,
+    dashboardUrl: params.dashboardUrl,
+  });
+  await sendEmail({
+    to: params.studioEmail,
+    subject: `New Order: ${params.orderNumber}`,
     html,
     text,
   });
