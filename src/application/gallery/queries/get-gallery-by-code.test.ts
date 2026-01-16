@@ -67,7 +67,7 @@ describe('getGalleryByCode', () => {
       ],
     };
 
-    prismaMock.gallery.findUnique.mockResolvedValue(mockGallery);
+    prismaMock.gallery.findFirst.mockResolvedValue(mockGallery);
 
     const result = await getGalleryByCode('SCDY0028');
 
@@ -91,7 +91,7 @@ describe('getGalleryByCode', () => {
   });
 
   it('should return null for non-existent gallery code', async () => {
-    prismaMock.gallery.findUnique.mockResolvedValue(null);
+    prismaMock.gallery.findFirst.mockResolvedValue(null);
 
     const result = await getGalleryByCode('INVALID');
 
@@ -117,7 +117,7 @@ describe('getGalleryByCode', () => {
       photos: [],
     };
 
-    prismaMock.gallery.findUnique.mockResolvedValue(mockGallery);
+    prismaMock.gallery.findFirst.mockResolvedValue(mockGallery);
 
     const result = await getGalleryByCode('EXPD1234');
 
@@ -143,7 +143,7 @@ describe('getGalleryByCode', () => {
       photos: [],
     };
 
-    prismaMock.gallery.findUnique.mockResolvedValue(mockGallery);
+    prismaMock.gallery.findFirst.mockResolvedValue(mockGallery);
 
     const result = await getGalleryByCode('FUTR1234');
 
@@ -152,11 +152,11 @@ describe('getGalleryByCode', () => {
   });
 
   it('should query for published galleries only', async () => {
-    prismaMock.gallery.findUnique.mockResolvedValue(null);
+    prismaMock.gallery.findFirst.mockResolvedValue(null);
 
     await getGalleryByCode('TEST1234');
 
-    expect(prismaMock.gallery.findUnique).toHaveBeenCalledWith({
+    expect(prismaMock.gallery.findFirst).toHaveBeenCalledWith({
       where: { code: 'TEST1234', status: 'published' },
       include: {
         photos: {
@@ -184,7 +184,7 @@ describe('getGalleryByCode', () => {
       photos: [],
     };
 
-    prismaMock.gallery.findUnique.mockResolvedValue(mockGallery);
+    prismaMock.gallery.findFirst.mockResolvedValue(mockGallery);
 
     const result = await getGalleryByCode('EMPT1234');
 
@@ -211,7 +211,7 @@ describe('getGalleryByCode', () => {
       photos: [],
     };
 
-    prismaMock.gallery.findUnique.mockResolvedValue(mockGallery);
+    prismaMock.gallery.findFirst.mockResolvedValue(mockGallery);
 
     const result = await getGalleryByCode('NODE1234');
 
@@ -237,7 +237,7 @@ describe('getGalleryByCode', () => {
       photos: [],
     };
 
-    prismaMock.gallery.findUnique.mockResolvedValue(mockGallery);
+    prismaMock.gallery.findFirst.mockResolvedValue(mockGallery);
 
     const result = await getGalleryByCode('NOPR1234');
 
@@ -306,7 +306,7 @@ describe('getGalleryByCode', () => {
       ],
     };
 
-    prismaMock.gallery.findUnique.mockResolvedValue(mockGallery);
+    prismaMock.gallery.findFirst.mockResolvedValue(mockGallery);
 
     const result = await getGalleryByCode('SORT1234');
 

@@ -9,7 +9,7 @@ interface Props {
 export default async function TenantLandingPage({ params }: Props) {
   const { tenant: tenantSlug } = await params;
 
-  const tenant = await prisma.tenant.findUnique({
+  const tenant = await prisma.tenant.findFirst({
     where: { slug: tenantSlug, status: 'active' },
     select: { id: true, name: true, logoUrl: true, brandColor: true },
   });

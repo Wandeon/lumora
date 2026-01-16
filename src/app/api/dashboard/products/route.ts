@@ -3,16 +3,22 @@ import { auth } from '@/infrastructure/auth/auth';
 import { createProduct } from '@/application/catalog/commands/create-product';
 import { getProducts } from '@/application/catalog/queries/get-products';
 import { hasFeature } from '@/shared/lib/features';
+import { authorizeApi } from '@/shared/lib/authorization';
 
 export async function GET() {
   const session = await auth();
 
-  if (!session?.user?.tenantId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Any authenticated user can view products
+  const authResult = authorizeApi(session, 'viewer');
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
   }
 
   // Check feature access - products require Pro tier
-  const canAccess = await hasFeature(session.user.tenantId, 'print_orders');
+  const canAccess = await hasFeature(authResult.tenantId!, 'print_orders');
   if (!canAccess) {
     return NextResponse.json(
       { error: 'Product catalog requires Pro tier or higher' },
@@ -20,15 +26,20 @@ export async function GET() {
     );
   }
 
-  const products = await getProducts(session.user.tenantId);
+  const products = await getProducts(authResult.tenantId!);
   return NextResponse.json(products);
 }
 
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.tenantId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Only owner or admin can create products
+  const authResult = authorizeApi(session, 'admin');
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
   }
 
   let body: Record<string, unknown>;
@@ -39,7 +50,7 @@ export async function POST(request: NextRequest) {
   }
 
   const result = await createProduct({
-    tenantId: session.user.tenantId,
+    tenantId: authResult.tenantId!,
     name: body.name as string,
     description: body.description as string | undefined,
     type: body.type as

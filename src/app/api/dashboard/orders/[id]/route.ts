@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/shared/lib/db';
 import { auth } from '@/infrastructure/auth/auth';
+import { authorizeApi } from '@/shared/lib/authorization';
 
 export const runtime = 'nodejs';
 
@@ -28,12 +29,17 @@ export async function GET(request: Request, { params }: RouteParams) {
   const { id } = await params;
   const session = await auth();
 
-  if (!session?.user?.tenantId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Any authenticated user can view order details
+  const authResult = authorizeApi(session, 'viewer');
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
   }
 
   const order = await prisma.order.findFirst({
-    where: { id, tenantId: session.user.tenantId },
+    where: { id, tenantId: authResult.tenantId },
     include: {
       items: {
         include: {
@@ -55,8 +61,13 @@ export async function PUT(request: Request, { params }: RouteParams) {
   const { id } = await params;
   const session = await auth();
 
-  if (!session?.user?.tenantId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Editor role or higher required to update order status
+  const authResult = authorizeApi(session, 'editor');
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
   }
 
   const body = await request.json();
@@ -79,7 +90,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
   }
 
   const result = await prisma.order.updateMany({
-    where: { id, tenantId: session.user.tenantId },
+    where: { id, tenantId: authResult.tenantId },
     data: updateData,
   });
 

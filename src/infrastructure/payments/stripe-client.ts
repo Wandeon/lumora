@@ -6,6 +6,11 @@ export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   typescript: true,
 });
 
+interface CheckoutSessionResult {
+  sessionId: string;
+  url: string;
+}
+
 export async function createCheckoutSession(params: {
   tenantId: string;
   orderId: string;
@@ -16,7 +21,7 @@ export async function createCheckoutSession(params: {
   }>;
   successUrl: string;
   cancelUrl: string;
-}): Promise<string> {
+}): Promise<CheckoutSessionResult> {
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     payment_method_types: ['card'],
@@ -36,5 +41,5 @@ export async function createCheckoutSession(params: {
     },
   });
 
-  return session.url!;
+  return { sessionId: session.id, url: session.url! };
 }

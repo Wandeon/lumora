@@ -21,12 +21,17 @@ services:
       - R2_BUCKET=${R2_BUCKET}
       - R2_ENDPOINT=${R2_ENDPOINT}
       - R2_PUBLIC_URL=${R2_PUBLIC_URL}
-      - RESEND_API_KEY=${RESEND_API_KEY}
       - EMAIL_FROM=${EMAIL_FROM}
       - NEXT_PUBLIC_APP_URL=https://lumora.genai.hr
       - NEXT_PUBLIC_APP_NAME=Lumora
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=smtp
+      - SMTP_PORT=25
+      - SENTRY_DSN=${SENTRY_DSN}
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - lumora-network
@@ -49,9 +54,34 @@ services:
     networks:
       - lumora-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: lumora-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lumora-network
+
+  smtp:
+    image: namshi/smtp
+    container_name: lumora-smtp
+    restart: unless-stopped
+    environment:
+      - RELAY_NETWORKS=:172.16.0.0/12:10.0.0.0/8
+    networks:
+      - lumora-network
+
 networks:
   lumora-network:
     driver: bridge
 
 volumes:
   postgres-data:
+  redis-data:

@@ -1,18 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/db';
 import { auth } from '@/infrastructure/auth/auth';
+import { authorizeApi } from '@/shared/lib/authorization';
 
 export const runtime = 'nodejs';
 
 export async function GET() {
   const session = await auth();
 
-  if (!session?.user?.tenantId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Any authenticated user can view orders
+  const authResult = authorizeApi(session, 'viewer');
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
   }
 
   const orders = await prisma.order.findMany({
-    where: { tenantId: session.user.tenantId },
+    where: { tenantId: authResult.tenantId },
     orderBy: { createdAt: 'desc' },
     include: {
       _count: { select: { items: true } },

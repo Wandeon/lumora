@@ -20,7 +20,7 @@ export default async function LoginPage({ searchParams }: Props) {
 
   // Check query param first (from signup redirect)
   if (!tenantId && tenantSlug) {
-    const tenant = await prisma.tenant.findUnique({
+    const tenant = await prisma.tenant.findFirst({
       where: { slug: tenantSlug, status: 'active' },
     });
     if (tenant) {

@@ -42,6 +42,11 @@ export const authConfig: NextAuthConfig = {
 
         if (!user || !passwordMatch) return null;
 
+        // Check tenant status - reject inactive/suspended tenants
+        if (user.tenant.status !== 'active') {
+          return null; // Tenant is suspended, cancelled, or inactive
+        }
+
         // Update last login
         await prisma.user.update({
           where: { id: user.id },

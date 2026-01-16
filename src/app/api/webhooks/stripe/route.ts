@@ -3,6 +3,7 @@ import { stripe } from '@/infrastructure/payments/stripe-client';
 import { prisma } from '@/shared/lib/db';
 import { env } from '@/shared/config/env';
 import { randomUUID } from 'crypto';
+import { sendOrderStatusUpdate } from '@/infrastructure/email';
 
 // Force Node.js runtime for Prisma compatibility
 export const runtime = 'nodejs';
@@ -45,10 +46,50 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true });
       }
 
-      // Update order status
+      // Validate order exists and belongs to the claimed tenant
+      const order = await prisma.order.findFirst({
+        where: { id: orderId, tenantId },
+      });
+
+      if (!order) {
+        console.error(
+          `Order ${orderId} not found or tenant mismatch for tenant ${tenantId}`
+        );
+        return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      }
+
+      // Validate session ID matches the order's stored session
+      if (order.stripeSessionId && order.stripeSessionId !== session.id) {
+        console.error(
+          `Session ID mismatch: expected ${order.stripeSessionId}, got ${session.id}`
+        );
+        return NextResponse.json(
+          { error: 'Session mismatch' },
+          { status: 400 }
+        );
+      }
+
+      // Validate order is in pending status
+      if (order.status !== 'pending') {
+        console.error(
+          `Order ${orderId} is not pending, current status: ${order.status}`
+        );
+        return NextResponse.json({ received: true }); // Already processed, not an error
+      }
+
+      // Validate payment amount matches order total (in cents)
+      const paymentAmount = session.amount_total;
+      if (paymentAmount !== order.total) {
+        console.error(
+          `Amount mismatch for order ${orderId}: expected ${order.total}, got ${paymentAmount}`
+        );
+        return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
+      }
+
+      // Update order status and set paid timestamp
       await prisma.order.update({
         where: { id: orderId },
-        data: { status: 'confirmed' },
+        data: { status: 'confirmed', paidAt: new Date() },
       });
 
       // Create payment record
@@ -63,6 +104,16 @@ export async function POST(request: NextRequest) {
           providerPaymentId: paymentIntentId,
         },
       });
+
+      // Send order status update email (fire and forget)
+      sendOrderStatusUpdate({
+        customerEmail: order.customerEmail,
+        customerName: order.customerName,
+        orderNumber: order.orderNumber,
+        status: 'confirmed',
+      }).catch((err) =>
+        console.error('[EMAIL] Failed to send order status update:', err)
+      );
     }
   }
 

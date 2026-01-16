@@ -1,0 +1,86 @@
+import { getEmailTransport } from './email-client';
+import { env } from '@/shared/config/env';
+import { orderConfirmationTemplate } from './templates/order-confirmation';
+import { orderStatusUpdateTemplate } from './templates/order-status-update';
+import { passwordResetTemplate } from './templates/password-reset';
+import { welcomeTemplate } from './templates/welcome';
+
+interface SendEmailParams {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}
+
+async function sendEmail(params: SendEmailParams): Promise<void> {
+  const transport = getEmailTransport();
+  await transport.sendMail({
+    from: env.EMAIL_FROM,
+    to: params.to,
+    subject: params.subject,
+    html: params.html,
+    text: params.text,
+  });
+}
+
+export async function sendOrderConfirmation(order: {
+  customerEmail: string;
+  customerName: string;
+  orderNumber: string;
+  total: number;
+  currency: string;
+  items: Array<{ name: string; quantity: number; unitPrice: number }>;
+}): Promise<void> {
+  const { html, text } = orderConfirmationTemplate(order);
+  await sendEmail({
+    to: order.customerEmail,
+    subject: `Order Confirmed: ${order.orderNumber}`,
+    html,
+    text,
+  });
+}
+
+export async function sendOrderStatusUpdate(order: {
+  customerEmail: string;
+  customerName: string;
+  orderNumber: string;
+  status: string;
+  trackingUrl?: string;
+}): Promise<void> {
+  const { html, text } = orderStatusUpdateTemplate(order);
+  await sendEmail({
+    to: order.customerEmail,
+    subject: `Order ${order.orderNumber} - ${order.status}`,
+    html,
+    text,
+  });
+}
+
+export async function sendPasswordReset(params: {
+  email: string;
+  resetUrl: string;
+  expiresIn: string;
+}): Promise<void> {
+  const { html, text } = passwordResetTemplate(params);
+  await sendEmail({
+    to: params.email,
+    subject: 'Reset Your Password',
+    html,
+    text,
+  });
+}
+
+export async function sendWelcome(params: {
+  email: string;
+  userName: string;
+  tenantName: string;
+  loginUrl: string;
+}): Promise<void> {
+  const { html, text } = welcomeTemplate(params);
+  await sendEmail({
+    to: params.email,
+    subject: `Welcome to ${params.tenantName}`,
+    html,
+    text,
+  });
+}

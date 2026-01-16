@@ -20,9 +20,16 @@ const envSchema = z.object({
   R2_ENDPOINT: z.string().url(),
   R2_PUBLIC_URL: z.string().url(),
 
-  // Email
-  RESEND_API_KEY: z.string().startsWith('re_'),
+  // Email (SMTP)
+  SMTP_HOST: z.string().default('smtp'),
+  SMTP_PORT: z.coerce.number().default(25),
   EMAIL_FROM: z.string().email(),
+
+  // Redis
+  REDIS_URL: z.string().url().default('redis://localhost:6379'),
+
+  // Sentry
+  SENTRY_DSN: z.string().url().optional(),
 
   // App
   NEXT_PUBLIC_APP_URL: z.string().url(),

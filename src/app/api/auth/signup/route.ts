@@ -1,7 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/shared/lib/db';
+import { checkSignupLimit } from '@/infrastructure/rate-limit';
+import { sendWelcome } from '@/infrastructure/email';
+import { env } from '@/shared/config/env';
 
 export const runtime = 'nodejs';
 
@@ -53,7 +56,25 @@ const RESERVED_SLUGS = new Set([
   'dev',
 ]);
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limiting
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const rateLimit = await checkSignupLimit(ip);
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(
+            Math.ceil((rateLimit.reset - Date.now()) / 1000)
+          ),
+        },
+      }
+    );
+  }
+
   try {
     const body = await request.json();
     const parsed = signupSchema.safeParse(body);
@@ -125,6 +146,16 @@ export async function POST(request: Request) {
 
       return { tenant, user };
     });
+
+    // Send welcome email (fire and forget)
+    sendWelcome({
+      email: result.user.email,
+      userName: result.user.name,
+      tenantName: result.tenant.name,
+      loginUrl: `${env.NEXT_PUBLIC_APP_URL}/login?tenant=${result.tenant.slug}`,
+    }).catch((err) =>
+      console.error('[EMAIL] Failed to send welcome email:', err)
+    );
 
     return NextResponse.json({
       success: true,

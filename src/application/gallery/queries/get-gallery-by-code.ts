@@ -22,7 +22,7 @@ export interface GalleryWithPhotos {
 export async function getGalleryByCode(
   code: string
 ): Promise<GalleryWithPhotos | null> {
-  const gallery = await prisma.gallery.findUnique({
+  const gallery = await prisma.gallery.findFirst({
     where: { code, status: 'published' },
     include: {
       photos: {
