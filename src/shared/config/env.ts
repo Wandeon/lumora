@@ -28,8 +28,12 @@ const envSchema = z.object({
   // Redis
   REDIS_URL: z.string().url().default('redis://localhost:6379'),
 
-  // Sentry
-  SENTRY_DSN: z.string().url().optional(),
+  // Sentry (empty string treated as undefined)
+  SENTRY_DSN: z
+    .string()
+    .optional()
+    .transform((val) => val || undefined)
+    .pipe(z.string().url().optional()),
 
   // App
   NEXT_PUBLIC_APP_URL: z.string().url(),
