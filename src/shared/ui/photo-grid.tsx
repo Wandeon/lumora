@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Lightbox } from './lightbox';
+import { Lightbox, Product } from './lightbox';
 
 interface Photo {
   id: string;
@@ -18,6 +18,8 @@ interface PhotoGridProps {
   galleryCode: string;
   onFavoriteToggle?: (photoId: string) => void;
   favorites?: Set<string>;
+  products?: Product[];
+  onAddToCart?: (productId: string, photoId: string, quantity: number) => void;
 }
 
 export function PhotoGrid({
@@ -25,6 +27,8 @@ export function PhotoGrid({
   galleryCode: _galleryCode,
   onFavoriteToggle,
   favorites = new Set(),
+  products,
+  onAddToCart,
 }: PhotoGridProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
@@ -76,7 +80,9 @@ export function PhotoGrid({
           initialIndex={selectedIndex}
           onClose={() => setSelectedIndex(null)}
           favorites={favorites}
+          {...(products ? { products } : {})}
           {...(onFavoriteToggle ? { onFavoriteToggle } : {})}
+          {...(onAddToCart ? { onAddToCart } : {})}
         />
       )}
     </>
