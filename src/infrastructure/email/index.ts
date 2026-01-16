@@ -4,6 +4,7 @@ export {
   sendOrderStatusUpdate,
   sendPasswordReset,
   sendPaymentFailure,
+  sendRefundConfirmation,
   sendStudioNewOrder,
   sendWelcome,
 } from './email-service';

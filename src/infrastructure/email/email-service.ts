@@ -4,6 +4,7 @@ import { orderConfirmationTemplate } from './templates/order-confirmation';
 import { orderStatusUpdateTemplate } from './templates/order-status-update';
 import { passwordResetTemplate } from './templates/password-reset';
 import { paymentFailureTemplate } from './templates/payment-failure';
+import { refundConfirmationTemplate } from './templates/refund-confirmation';
 import { studioNewOrderTemplate } from './templates/studio-new-order';
 import { welcomeTemplate } from './templates/welcome';
 
@@ -128,6 +129,27 @@ export async function sendStudioNewOrder(params: {
   await sendEmail({
     to: params.studioEmail,
     subject: `New Order: ${params.orderNumber}`,
+    html,
+    text,
+  });
+}
+
+export async function sendRefundConfirmation(params: {
+  customerEmail: string;
+  customerName: string;
+  orderNumber: string;
+  amount: number;
+  currency: string;
+}): Promise<void> {
+  const { html, text } = refundConfirmationTemplate({
+    customerName: params.customerName,
+    orderNumber: params.orderNumber,
+    amount: params.amount,
+    currency: params.currency,
+  });
+  await sendEmail({
+    to: params.customerEmail,
+    subject: `Refund Processed - Order ${params.orderNumber}`,
     html,
     text,
   });

@@ -6,6 +6,7 @@ import { randomUUID } from 'crypto';
 import {
   sendOrderStatusUpdate,
   sendPaymentFailure,
+  sendRefundConfirmation,
   sendStudioNewOrder,
 } from '@/infrastructure/email';
 import Stripe from 'stripe';
@@ -200,6 +201,60 @@ export async function POST(request: NextRequest) {
     );
 
     console.log('Payment failure handled for order:', order.orderNumber);
+  }
+
+  if (event.type === 'charge.refunded') {
+    const charge = event.data.object as Stripe.Charge;
+    const paymentIntentId =
+      typeof charge.payment_intent === 'string'
+        ? charge.payment_intent
+        : charge.payment_intent?.id;
+
+    if (!paymentIntentId) {
+      console.warn('Refund event without payment intent:', charge.id);
+      return NextResponse.json({ received: true });
+    }
+
+    // Find payment and order
+    const payment = await prisma.payment.findFirst({
+      where: { providerPaymentId: paymentIntentId },
+      include: { order: true },
+    });
+
+    if (!payment) {
+      console.warn('Refund for unknown payment:', paymentIntentId);
+      return NextResponse.json({ received: true });
+    }
+
+    if (payment.status === 'refunded') {
+      console.log(`Refund already processed for payment ${paymentIntentId}`);
+      return NextResponse.json({ received: true });
+    }
+
+    // Update payment and order status
+    await prisma.$transaction([
+      prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: 'refunded' },
+      }),
+      prisma.order.update({
+        where: { id: payment.orderId },
+        data: { status: 'refunded' },
+      }),
+    ]);
+
+    // Send refund confirmation email (fire and forget)
+    sendRefundConfirmation({
+      customerEmail: payment.order.customerEmail,
+      customerName: payment.order.customerName,
+      orderNumber: payment.order.orderNumber,
+      amount: charge.amount_refunded,
+      currency: payment.order.currency,
+    }).catch((err) =>
+      console.error('[EMAIL] Failed to send refund confirmation:', err)
+    );
+
+    console.log('Refund processed for order:', payment.order.orderNumber);
   }
 
   return NextResponse.json({ received: true });
