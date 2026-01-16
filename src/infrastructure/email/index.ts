@@ -6,5 +6,6 @@ export {
   sendPaymentFailure,
   sendRefundConfirmation,
   sendStudioNewOrder,
+  sendTeamInvitation,
   sendWelcome,
 } from './email-service';

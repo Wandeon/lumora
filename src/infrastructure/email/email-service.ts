@@ -6,6 +6,7 @@ import { passwordResetTemplate } from './templates/password-reset';
 import { paymentFailureTemplate } from './templates/payment-failure';
 import { refundConfirmationTemplate } from './templates/refund-confirmation';
 import { studioNewOrderTemplate } from './templates/studio-new-order';
+import { teamInvitationTemplate } from './templates/team-invitation';
 import { welcomeTemplate } from './templates/welcome';
 
 interface SendEmailParams {
@@ -150,6 +151,27 @@ export async function sendRefundConfirmation(params: {
   await sendEmail({
     to: params.customerEmail,
     subject: `Refund Processed - Order ${params.orderNumber}`,
+    html,
+    text,
+  });
+}
+
+export async function sendTeamInvitation(params: {
+  email: string;
+  inviterName: string;
+  tenantName: string;
+  role: string;
+  acceptUrl: string;
+}): Promise<void> {
+  const { html, text } = teamInvitationTemplate({
+    inviterName: params.inviterName,
+    tenantName: params.tenantName,
+    role: params.role,
+    acceptUrl: params.acceptUrl,
+  });
+  await sendEmail({
+    to: params.email,
+    subject: `You're invited to join ${params.tenantName}`,
     html,
     text,
   });
