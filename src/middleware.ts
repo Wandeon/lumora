@@ -1,4 +1,4 @@
-import { auth } from '@/infrastructure/auth/auth';
+import { auth } from '@/infrastructure/auth/auth.edge';
 import { NextResponse } from 'next/server';
 
 // Routes that require authentication
