@@ -25,10 +25,14 @@ export function PhotoUploader({ galleryId, onComplete }: PhotoUploaderProps) {
     const formData = new FormData();
     formData.append('file', file);
 
-    setUploads((prev) => [
-      ...prev,
-      { filename: file.name, progress: 0, status: 'uploading' },
-    ]);
+    // Update status from pending to uploading
+    setUploads((prev) =>
+      prev.map((u) =>
+        u.filename === file.name && u.status === 'pending'
+          ? { ...u, status: 'uploading' }
+          : u
+      )
+    );
 
     try {
       const response = await fetch(
@@ -72,6 +76,16 @@ export function PhotoUploader({ galleryId, onComplete }: PhotoUploaderProps) {
       if (validFiles.length === 0) return;
 
       setIsUploading(true);
+
+      // Add all files to queue with pending status
+      setUploads((prev) => [
+        ...prev,
+        ...validFiles.map((f) => ({
+          filename: f.name,
+          progress: 0,
+          status: 'pending' as const,
+        })),
+      ]);
 
       for (const file of validFiles) {
         await uploadFile(file);
@@ -175,6 +189,9 @@ export function PhotoUploader({ galleryId, onComplete }: PhotoUploaderProps) {
                 )}
               </div>
               <div className="flex-shrink-0">
+                {upload.status === 'pending' && (
+                  <div className="w-5 h-5 border-2 border-gray-500 rounded-full" />
+                )}
                 {upload.status === 'uploading' && (
                   <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                 )}
