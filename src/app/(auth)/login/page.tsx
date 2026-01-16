@@ -5,11 +5,15 @@ import { getTenantFromHost } from '@/shared/lib/tenant-context';
 import { prisma } from '@/shared/lib/db';
 
 interface Props {
-  searchParams: Promise<{ tenant?: string; registered?: string }>;
+  searchParams: Promise<{
+    tenant?: string;
+    registered?: string;
+    invitation?: string;
+  }>;
 }
 
 export default async function LoginPage({ searchParams }: Props) {
-  const { tenant: tenantSlug, registered } = await searchParams;
+  const { tenant: tenantSlug, registered, invitation } = await searchParams;
   const headersList = await headers();
   const host = headersList.get('host') || '';
   const tenantIdHeader = headersList.get('x-tenant-id');
@@ -62,6 +66,14 @@ export default async function LoginPage({ searchParams }: Props) {
           <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
             <p className="text-sm text-emerald-400 text-center">
               Account created! Please sign in.
+            </p>
+          </div>
+        )}
+
+        {invitation === 'accepted' && (
+          <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <p className="text-sm text-emerald-400 text-center">
+              Invitation accepted! Please sign in with your new password.
             </p>
           </div>
         )}
