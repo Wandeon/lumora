@@ -65,7 +65,21 @@ export default function MarketingLayout({
             >
               Privacy
             </Link>
+            <Link
+              href="/support"
+              className="hover:text-zinc-900 dark:hover:text-white"
+            >
+              Support
+            </Link>
           </div>
+          <p className="mb-4">
+            <a
+              href="mailto:support@lumora.genai.hr"
+              className="hover:text-zinc-900 dark:hover:text-white"
+            >
+              support@lumora.genai.hr
+            </a>
+          </p>
           &copy; {new Date().getFullYear()} Lumora. All rights reserved.
         </div>
       </footer>
