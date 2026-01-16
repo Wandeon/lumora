@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/infrastructure/auth/auth';
-import { DashboardNav } from '@/shared/ui/dashboard-nav';
+import { DashboardShell } from '@/shared/ui/dashboard-sidebar';
 import { DashboardHeader } from '@/shared/ui/dashboard-header';
 
 export default async function DashboardLayout({
@@ -15,12 +15,6 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
-      <DashboardNav />
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader />
-        <main className="flex-1 p-6">{children}</main>
-      </div>
-    </div>
+    <DashboardShell header={<DashboardHeader />}>{children}</DashboardShell>
   );
 }
