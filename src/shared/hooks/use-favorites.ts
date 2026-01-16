@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const SESSION_KEY_STORAGE = 'lumora_session_key';
 
@@ -32,6 +32,12 @@ export function useFavorites(galleryCode: string): UseFavoritesResult {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [sessionKey, setSessionKey] = useState('');
+  const favoritesRef = useRef<Set<string>>(new Set());
+
+  // Update ref when state changes
+  useEffect(() => {
+    favoritesRef.current = favorites;
+  }, [favorites]);
 
   // Initialize session key on mount
   useEffect(() => {
@@ -42,30 +48,49 @@ export function useFavorites(galleryCode: string): UseFavoritesResult {
   useEffect(() => {
     if (!sessionKey || !galleryCode) return;
 
+    const controller = new AbortController();
+
     const fetchFavorites = async () => {
       try {
         const response = await fetch(
-          `/api/galleries/${galleryCode}/favorites?sessionKey=${sessionKey}`
+          `/api/galleries/${galleryCode}/favorites?sessionKey=${sessionKey}`,
+          { signal: controller.signal }
         );
         if (response.ok) {
           const data = await response.json();
           setFavorites(new Set(data.favorites));
         }
       } catch (error) {
-        console.error('Failed to fetch favorites:', error);
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Failed to fetch favorites:', error);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchFavorites();
+
+    return () => controller.abort();
   }, [galleryCode, sessionKey]);
+
+  const revertFavorite = (photoId: string, wasAdded: boolean) => {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (wasAdded) {
+        next.delete(photoId);
+      } else {
+        next.add(photoId);
+      }
+      return next;
+    });
+  };
 
   const toggleFavorite = useCallback(
     async (photoId: string) => {
       if (!sessionKey) return;
 
-      const isFav = favorites.has(photoId);
+      const isFav = favoritesRef.current.has(photoId);
       const action = isFav ? 'remove' : 'add';
 
       // Optimistic update
@@ -94,31 +119,15 @@ export function useFavorites(galleryCode: string): UseFavoritesResult {
           setFavorites(new Set(data.favorites));
         } else {
           // Revert on error
-          setFavorites((prev) => {
-            const next = new Set(prev);
-            if (isFav) {
-              next.add(photoId);
-            } else {
-              next.delete(photoId);
-            }
-            return next;
-          });
+          revertFavorite(photoId, !isFav);
         }
       } catch (error) {
         console.error('Failed to toggle favorite:', error);
         // Revert on error
-        setFavorites((prev) => {
-          const next = new Set(prev);
-          if (isFav) {
-            next.add(photoId);
-          } else {
-            next.delete(photoId);
-          }
-          return next;
-        });
+        revertFavorite(photoId, !isFav);
       }
     },
-    [favorites, galleryCode, sessionKey]
+    [galleryCode, sessionKey]
   );
 
   const isFavorite = useCallback(
