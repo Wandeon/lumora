@@ -27,7 +27,7 @@ export function ProductPicker({
   const [quantity, setQuantity] = useState(1);
 
   const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('hr-HR', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
     }).format(cents / 100);
@@ -67,7 +67,7 @@ export function ProductPicker({
             onClick={() => setSelectedProductId(product.id)}
             className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors ${
               selectedProductId === product.id
-                ? 'bg-emerald-600 text-white'
+                ? 'bg-amber-600 text-white'
                 : 'bg-gray-800 text-white/80 hover:bg-gray-700'
             }`}
           >
@@ -119,7 +119,7 @@ export function ProductPicker({
         </button>
         <button
           onClick={handleSubmit}
-          className="flex-1 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg transition-colors"
+          className="flex-1 py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white text-sm rounded-lg transition-colors"
         >
           Add to Cart
         </button>

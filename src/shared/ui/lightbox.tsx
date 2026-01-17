@@ -81,7 +81,7 @@ export function Lightbox({
       {/* Close button */}
       <button
         onClick={onClose}
-        aria-label="Zatvori galeriju"
+        aria-label="Close gallery"
         className="absolute top-4 left-4 text-white/80 hover:text-white z-10"
       >
         <svg
@@ -106,8 +106,8 @@ export function Lightbox({
         {products.length > 0 && onAddToCart && (
           <button
             onClick={() => setShowProductPicker(!showProductPicker)}
-            aria-label="Naruci proizvod"
-            className="p-2 text-white/80 hover:text-emerald-400 transition-colors"
+            aria-label="Order product"
+            className="p-2 text-white/80 hover:text-amber-400 transition-colors"
           >
             <svg
               className="w-7 h-7"
@@ -129,7 +129,7 @@ export function Lightbox({
         {/* Favorite button */}
         <button
           onClick={() => onFavoriteToggle?.(photo.id)}
-          aria-label="Dodaj u favorite"
+          aria-label="Add to favorites"
           className="p-2"
         >
           <svg
@@ -161,7 +161,7 @@ export function Lightbox({
       {/* Navigation */}
       <button
         onClick={goPrev}
-        aria-label="Prethodna fotografija"
+        aria-label="Previous photo"
         className="absolute left-4 text-white/80 hover:text-white"
       >
         <svg
@@ -182,7 +182,7 @@ export function Lightbox({
 
       <button
         onClick={goNext}
-        aria-label="Sljedeća fotografija"
+        aria-label="Next photo"
         className="absolute right-4 text-white/80 hover:text-white"
       >
         <svg

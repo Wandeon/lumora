@@ -37,7 +37,7 @@ export default async function TenantLandingPage({ params }: Props) {
         <GalleryCodeForm tenantSlug={tenantSlug} />
 
         <p className="mt-8 text-center text-gray-400 text-sm">
-          Sigurna privatna galerija • {tenant.name}
+          Secure private gallery • {tenant.name}
         </p>
       </div>
     </main>

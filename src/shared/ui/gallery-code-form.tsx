@@ -19,7 +19,7 @@ export function GalleryCodeForm({ tenantSlug }: GalleryCodeFormProps) {
 
     const normalizedCode = code.trim().toUpperCase();
     if (!normalizedCode || normalizedCode.length < 4) {
-      setError('Unesite ispravan kod galerije');
+      setError('Please enter a valid gallery code');
       return;
     }
 
@@ -32,26 +32,26 @@ export function GalleryCodeForm({ tenantSlug }: GalleryCodeFormProps) {
     <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">
-          Pristupite galeriji
+          Access Your Gallery
         </h1>
         <p className="text-gray-600 mb-6 text-center">
-          Unesite kod za pristup vašim fotografijama
+          Enter the code to view your photos
         </p>
 
         <div className="space-y-4">
           <div>
             <label htmlFor="gallery-code" className="sr-only">
-              Kod galerije
+              Gallery code
             </label>
             <input
               id="gallery-code"
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="UNESITE KOD"
+              placeholder="ENTER CODE"
               className="w-full px-4 py-3 text-center text-xl font-mono tracking-widest
                          border border-gray-300 rounded-lg focus:ring-2
-                         focus:ring-emerald-500 focus:border-emerald-500"
+                         focus:ring-amber-500 focus:border-amber-500"
               maxLength={12}
               autoComplete="off"
               autoFocus
@@ -72,16 +72,16 @@ export function GalleryCodeForm({ tenantSlug }: GalleryCodeFormProps) {
           <button
             type="submit"
             disabled={isPending || code.length < 4}
-            className="w-full py-3 px-4 bg-emerald-600 text-white font-semibold
-                       rounded-lg hover:bg-emerald-700 disabled:opacity-50
+            className="w-full py-3 px-4 bg-amber-600 text-white font-semibold
+                       rounded-lg hover:bg-amber-700 disabled:opacity-50
                        disabled:cursor-not-allowed transition-colors"
           >
-            {isPending ? 'Učitavanje...' : 'Otvori galeriju'}
+            {isPending ? 'Loading...' : 'Open Gallery'}
           </button>
         </div>
 
         <p className="mt-6 text-sm text-gray-500 text-center">
-          Kod ste dobili od fotografa ili na kartici
+          You received your code from your photographer
         </p>
       </div>
     </form>

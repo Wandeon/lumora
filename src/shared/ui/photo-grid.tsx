@@ -43,9 +43,9 @@ export function PhotoGrid({
             <button
               key={photo.id}
               onClick={() => setSelectedIndex(index)}
-              aria-label={`Otvori fotografiju ${photo.filename}`}
+              aria-label={`Open photo ${photo.filename}`}
               className={`relative overflow-hidden rounded-lg bg-gray-800
-                         hover:ring-2 hover:ring-emerald-500 transition-all
+                         hover:ring-2 hover:ring-amber-500 transition-all
                          ${isPortrait ? 'row-span-2' : ''}`}
               style={{ aspectRatio: isPortrait ? '2/3' : '3/2' }}
             >
