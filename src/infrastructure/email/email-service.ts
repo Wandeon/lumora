@@ -1,6 +1,7 @@
 import { getEmailTransport } from './email-client';
 import { env } from '@/shared/config/env';
 import { orderConfirmationTemplate } from './templates/order-confirmation';
+import { orderStatusChangeTemplate } from './templates/order-status-change';
 import { orderStatusUpdateTemplate } from './templates/order-status-update';
 import { passwordResetTemplate } from './templates/password-reset';
 import { paymentFailureTemplate } from './templates/payment-failure';
@@ -172,6 +173,31 @@ export async function sendTeamInvitation(params: {
   await sendEmail({
     to: params.email,
     subject: `You're invited to join ${params.tenantName}`,
+    html,
+    text,
+  });
+}
+
+export async function sendOrderStatusChange(params: {
+  customerEmail: string;
+  customerName: string;
+  orderNumber: string;
+  oldStatus: string;
+  newStatus: string;
+  statusMessage?: string | undefined;
+  orderUrl: string;
+}): Promise<void> {
+  const { html, text } = orderStatusChangeTemplate({
+    customerName: params.customerName,
+    orderNumber: params.orderNumber,
+    oldStatus: params.oldStatus,
+    newStatus: params.newStatus,
+    statusMessage: params.statusMessage,
+    orderUrl: params.orderUrl,
+  });
+  await sendEmail({
+    to: params.customerEmail,
+    subject: `Order ${params.orderNumber} - Status Updated`,
     html,
     text,
   });

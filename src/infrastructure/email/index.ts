@@ -1,6 +1,7 @@
 export { getEmailTransport, verifyEmailTransport } from './email-client';
 export {
   sendOrderConfirmation,
+  sendOrderStatusChange,
   sendOrderStatusUpdate,
   sendPasswordReset,
   sendPaymentFailure,

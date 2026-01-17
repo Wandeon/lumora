@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { prisma } from '@/shared/lib/db';
 import { auth } from '@/infrastructure/auth/auth';
 import { authorizeApi } from '@/shared/lib/authorization';
+import { sendOrderStatusChange } from '@/infrastructure/email';
+import { env } from '@/shared/config/env';
 
 export const runtime = 'nodejs';
 
@@ -80,6 +82,21 @@ export async function PUT(request: Request, { params }: RouteParams) {
     );
   }
 
+  // Get current order to check if status changed
+  const existingOrder = await prisma.order.findFirst({
+    where: { id, tenantId: authResult.tenantId },
+    select: {
+      status: true,
+      customerEmail: true,
+      customerName: true,
+      orderNumber: true,
+    },
+  });
+
+  if (!existingOrder) {
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+  }
+
   const updateData: Record<string, unknown> = { ...parsed.data };
 
   // Update timestamp fields based on status change
@@ -89,13 +106,26 @@ export async function PUT(request: Request, { params }: RouteParams) {
     updateData.deliveredAt = new Date();
   }
 
-  const result = await prisma.order.updateMany({
-    where: { id, tenantId: authResult.tenantId },
+  await prisma.order.update({
+    where: { id },
     data: updateData,
   });
 
-  if (result.count === 0) {
-    return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+  // Send email notification if status changed
+  if (parsed.data.status && parsed.data.status !== existingOrder.status) {
+    const orderUrl = `${env.NEXT_PUBLIC_APP_URL}/order/${id}`;
+
+    sendOrderStatusChange({
+      customerEmail: existingOrder.customerEmail,
+      customerName: existingOrder.customerName,
+      orderNumber: existingOrder.orderNumber,
+      oldStatus: existingOrder.status,
+      newStatus: parsed.data.status,
+      statusMessage: parsed.data.notes,
+      orderUrl,
+    }).catch((error) => {
+      console.error('Failed to send order status change email:', error);
+    });
   }
 
   return NextResponse.json({ success: true });
