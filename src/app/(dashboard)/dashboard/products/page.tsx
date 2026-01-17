@@ -18,16 +18,16 @@ export default async function ProductsPage() {
   if (!canAccessProducts) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-white mb-6">Proizvodi</h1>
-        <div className="bg-gray-900 rounded-lg p-8 text-center border border-gray-800">
-          <p className="text-gray-400 mb-4">
-            Katalog proizvoda dostupan je samo za Pro i Studio pakete.
+        <h1 className="text-2xl font-bold text-stone-900 mb-6">Products</h1>
+        <div className="bg-white rounded-xl p-8 text-center border border-stone-200 shadow-sm">
+          <p className="text-stone-500 mb-4">
+            Product catalog is only available for Pro and Studio plans.
           </p>
           <Link
             href="/dashboard/settings/billing"
-            className="text-emerald-400 hover:text-emerald-300"
+            className="text-amber-600 hover:text-amber-700 font-medium"
           >
-            Nadogradite svoj paket →
+            Upgrade your plan →
           </Link>
         </div>
       </div>
@@ -39,60 +39,60 @@ export default async function ProductsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Proizvodi</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Products</h1>
         <Link
           href="/dashboard/products/new"
-          className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
         >
-          + Novi proizvod
+          + New Product
         </Link>
       </div>
 
       {products.length === 0 ? (
-        <div className="bg-gray-900 rounded-lg p-8 text-center border border-gray-800">
-          <p className="text-gray-400 mb-4">Nemate jos nijedan proizvod</p>
+        <div className="bg-white rounded-xl p-8 text-center border border-stone-200 shadow-sm">
+          <p className="text-stone-500 mb-4">You don't have any products yet</p>
           <Link
             href="/dashboard/products/new"
-            className="text-emerald-400 hover:text-emerald-300"
+            className="text-amber-600 hover:text-amber-700 font-medium"
           >
-            Dodajte prvi proizvod →
+            Add your first product →
           </Link>
         </div>
       ) : (
-        <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
           <table className="w-full">
-            <thead className="bg-gray-800">
+            <thead className="bg-stone-50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                  Naziv
+                <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+                  Name
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                  Vrsta
+                <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+                  Type
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                  Cijena
+                <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+                  Price
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-300">
-                  Akcije
+                <th className="px-4 py-3 text-right text-sm font-medium text-stone-600">
+                  Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-stone-100">
               {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-800/50">
-                  <td className="px-4 py-3 text-white">{product.name}</td>
-                  <td className="px-4 py-3 text-gray-400">
+                <tr key={product.id} className="hover:bg-stone-50 transition-colors">
+                  <td className="px-4 py-3 text-stone-900 font-medium">{product.name}</td>
+                  <td className="px-4 py-3 text-stone-600">
                     {getProductTypeLabel(product.type)}
                   </td>
-                  <td className="px-4 py-3 text-gray-300">
+                  <td className="px-4 py-3 text-stone-900">
                     {(product.price / 100).toFixed(2)} EUR
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/dashboard/products/${product.id}`}
-                      className="text-emerald-400 hover:text-emerald-300"
+                      className="text-amber-600 hover:text-amber-700 font-medium text-sm"
                     >
-                      Uredi
+                      Edit
                     </Link>
                   </td>
                 </tr>
@@ -108,11 +108,11 @@ export default async function ProductsPage() {
 function getProductTypeLabel(type: string): string {
   const labels: Record<string, string> = {
     print: 'Print',
-    digital_download: 'Digitalno',
+    digital_download: 'Digital',
     magnet: 'Magnet',
     canvas: 'Canvas',
     album: 'Album',
-    other: 'Ostalo',
+    other: 'Other',
   };
   return labels[type] || type;
 }

@@ -51,28 +51,30 @@ export default async function LoginPage({ searchParams }: Props) {
   const effectiveTenantId = tenantId || 'development-tenant';
 
   return (
-    <div className="w-full max-w-md">
-      <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
+    <div className="w-full max-w-md relative">
+      <div className="bg-white rounded-2xl p-8 border border-stone-200 shadow-xl">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Lumora</h1>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-500 bg-clip-text text-transparent">
+            Lumora
+          </h1>
           {tenantName ? (
-            <p className="text-gray-400 mt-1">{tenantName}</p>
+            <p className="text-stone-500 mt-1">{tenantName}</p>
           ) : (
-            <p className="text-gray-400 mt-1">Sign in to your studio</p>
+            <p className="text-stone-500 mt-1">Sign in to your studio</p>
           )}
         </div>
 
         {registered && (
-          <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-            <p className="text-sm text-emerald-400 text-center">
+          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <p className="text-sm text-emerald-700 text-center">
               Account created! Please sign in.
             </p>
           </div>
         )}
 
         {invitation === 'accepted' && (
-          <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-            <p className="text-sm text-emerald-400 text-center">
+          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <p className="text-sm text-emerald-700 text-center">
               Invitation accepted! Please sign in with your new password.
             </p>
           </div>

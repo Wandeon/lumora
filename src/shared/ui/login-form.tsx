@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 interface LoginFormProps {
   tenantId: string;
@@ -43,12 +44,12 @@ function LoginFormContent({ tenantId }: LoginFormProps) {
       });
 
       if (result?.error) {
-        setError('Neispravan email ili lozinka');
+        setError('Invalid email or password');
       } else {
         router.push(callbackUrl);
       }
     } catch {
-      setError('Doslo je do greske. Pokusajte ponovo.');
+      setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -59,16 +60,16 @@ function LoginFormContent({ tenantId }: LoginFormProps) {
       {error && (
         <div
           role="alert"
-          className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-3"
+          className="bg-rose-50 border border-rose-200 rounded-lg p-3"
         >
-          <p className="text-sm text-rose-400">{error}</p>
+          <p className="text-sm text-rose-600">{error}</p>
         </div>
       )}
 
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block text-sm font-medium text-stone-700 mb-1"
         >
           Email
         </label>
@@ -79,18 +80,20 @@ function LoginFormContent({ tenantId }: LoginFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                     text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-          placeholder="vas@email.com"
+          className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg
+                     text-stone-900 placeholder:text-stone-400
+                     focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                     transition-colors"
+          placeholder="you@example.com"
         />
       </div>
 
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block text-sm font-medium text-stone-700 mb-1"
         >
-          Lozinka
+          Password
         </label>
         <input
           id="password"
@@ -100,20 +103,39 @@ function LoginFormContent({ tenantId }: LoginFormProps) {
           required
           autoComplete="current-password"
           minLength={8}
-          className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                     text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg
+                     text-stone-900 placeholder:text-stone-400
+                     focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                     transition-colors"
           placeholder="********"
         />
+      </div>
+
+      <div className="flex items-center justify-end">
+        <Link
+          href="/forgot-password"
+          className="text-sm text-amber-600 hover:text-amber-700 hover:underline"
+        >
+          Forgot password?
+        </Link>
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-2 px-4 bg-emerald-600 text-white font-semibold rounded-lg
-                   hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-2.5 px-4 bg-amber-600 text-white font-semibold rounded-lg
+                   hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed
+                   transition-colors shadow-sm"
       >
-        {isLoading ? 'Prijava...' : 'Prijavi se'}
+        {isLoading ? 'Signing in...' : 'Sign In'}
       </button>
+
+      <p className="text-center text-sm text-stone-500">
+        Don't have an account?{' '}
+        <Link href="/signup" className="text-amber-600 hover:text-amber-700 hover:underline font-medium">
+          Start free trial
+        </Link>
+      </p>
     </form>
   );
 }
@@ -123,9 +145,9 @@ export function LoginForm({ tenantId }: LoginFormProps) {
     <Suspense
       fallback={
         <div className="space-y-4 animate-pulse">
-          <div className="h-10 bg-gray-800 rounded-lg" />
-          <div className="h-10 bg-gray-800 rounded-lg" />
-          <div className="h-10 bg-emerald-600/50 rounded-lg" />
+          <div className="h-10 bg-stone-100 rounded-lg" />
+          <div className="h-10 bg-stone-100 rounded-lg" />
+          <div className="h-10 bg-amber-100 rounded-lg" />
         </div>
       }
     >

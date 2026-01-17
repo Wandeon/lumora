@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
+/* Lumora Dawn Theme - "Light of Dawn" */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core backgrounds - warm whites */
+  --background: #FFFBF7;
+  --background-secondary: #FEF7ED;
+  --foreground: #1C1917;
+
+  /* Dawn accent colors */
+  --dawn-50: #FFFBEB;
+  --dawn-100: #FEF3C7;
+  --dawn-200: #FDE68A;
+  --dawn-300: #FCD34D;
+  --dawn-400: #FBBF24;
+  --dawn-500: #F59E0B;
+  --dawn-600: #D97706;
+  --dawn-700: #B45309;
+  --dawn-800: #92400E;
+  --dawn-900: #78350F;
+
+  /* Warm neutrals (stone palette) */
+  --stone-50: #FAFAF9;
+  --stone-100: #F5F5F4;
+  --stone-200: #E7E5E4;
+  --stone-300: #D6D3D1;
+  --stone-400: #A8A29E;
+  --stone-500: #78716C;
+  --stone-600: #57534E;
+  --stone-700: #44403C;
+  --stone-800: #292524;
+  --stone-900: #1C1917;
+
+  /* Semantic colors */
+  --primary: var(--dawn-600);
+  --primary-hover: var(--dawn-700);
+  --primary-light: var(--dawn-100);
+  --accent: var(--dawn-500);
+  --muted: var(--stone-500);
+  --border: var(--stone-200);
+  --card: #FEFCFA;
+  --card-hover: #FEF7ED;
+
+  /* Status colors */
+  --success: #059669;
+  --success-light: #D1FAE5;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+  --warning: var(--dawn-500);
+  --warning-light: var(--dawn-100);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Remove dark mode - Lumora is always light like dawn */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Dawn gradient utility classes */
+.bg-dawn-gradient {
+  background: linear-gradient(135deg, #FFFBF7 0%, #FEF3C7 50%, #FDE68A 100%);
+}
+
+.bg-dawn-gradient-subtle {
+  background: linear-gradient(180deg, #FFFBF7 0%, #FEF7ED 100%);
+}
+
+.bg-dawn-radial {
+  background: radial-gradient(ellipse at top, #FEF3C7 0%, #FFFBF7 70%);
+}
+
+.text-dawn-gradient {
+  background: linear-gradient(135deg, var(--dawn-600) 0%, var(--dawn-500) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button styles */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+/* Card styles */
+.card-dawn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.card-dawn:hover {
+  background: var(--card-hover);
 }

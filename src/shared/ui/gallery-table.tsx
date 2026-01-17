@@ -17,20 +17,20 @@ interface GalleryTableProps {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    draft: 'bg-gray-700 text-gray-300',
-    published: 'bg-emerald-600/20 text-emerald-400',
-    archived: 'bg-amber-600/20 text-amber-400',
+    draft: 'bg-stone-100 text-stone-600',
+    published: 'bg-emerald-50 text-emerald-700',
+    archived: 'bg-amber-50 text-amber-700',
   };
 
   const labels: Record<string, string> = {
-    draft: 'Skica',
-    published: 'Objavljeno',
-    archived: 'Arhivirano',
+    draft: 'Draft',
+    published: 'Published',
+    archived: 'Archived',
   };
 
   return (
     <span
-      className={`px-2 py-1 text-xs rounded-full ${styles[status] || styles.draft}`}
+      className={`px-2.5 py-1 text-xs font-medium rounded-full ${styles[status] || styles.draft}`}
     >
       {labels[status] || status}
     </span>
@@ -39,52 +39,56 @@ function StatusBadge({ status }: { status: string }) {
 
 export function GalleryTable({ galleries }: GalleryTableProps) {
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
       <table className="w-full">
-        <thead className="bg-gray-800">
+        <thead className="bg-stone-50">
           <tr>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Kod
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Code
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Naziv
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Title
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
               Status
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Fotografije
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Photos
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Kreirano
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Created
             </th>
-            <th className="px-4 py-3 text-right text-sm font-medium text-gray-300">
-              Akcije
+            <th className="px-4 py-3 text-right text-sm font-medium text-stone-600">
+              Actions
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-800">
+        <tbody className="divide-y divide-stone-100">
           {galleries.map((gallery) => (
-            <tr key={gallery.id} className="hover:bg-gray-800/50">
+            <tr key={gallery.id} className="hover:bg-stone-50 transition-colors">
               <td className="px-4 py-3">
-                <code className="text-emerald-400 font-mono">
+                <code className="text-amber-600 font-mono text-sm bg-amber-50 px-2 py-0.5 rounded">
                   {gallery.code}
                 </code>
               </td>
-              <td className="px-4 py-3 text-white">{gallery.title}</td>
+              <td className="px-4 py-3 text-stone-900 font-medium">{gallery.title}</td>
               <td className="px-4 py-3">
                 <StatusBadge status={gallery.status} />
               </td>
-              <td className="px-4 py-3 text-gray-300">{gallery.photoCount}</td>
-              <td className="px-4 py-3 text-gray-400">
-                {new Date(gallery.createdAt).toLocaleDateString('hr-HR')}
+              <td className="px-4 py-3 text-stone-600">{gallery.photoCount}</td>
+              <td className="px-4 py-3 text-stone-500">
+                {new Date(gallery.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
               </td>
               <td className="px-4 py-3 text-right">
                 <Link
                   href={`/dashboard/galleries/${gallery.id}/edit`}
-                  className="text-emerald-400 hover:text-emerald-300"
+                  className="text-amber-600 hover:text-amber-700 font-medium text-sm"
                 >
-                  Uredi
+                  Edit
                 </Link>
               </td>
             </tr>

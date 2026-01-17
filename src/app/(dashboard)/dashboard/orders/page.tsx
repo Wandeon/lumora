@@ -34,15 +34,15 @@ export default async function OrdersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Narudzbe</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Orders</h1>
       </div>
 
       {formattedOrders.length === 0 ? (
-        <div className="bg-gray-900 rounded-lg p-8 text-center border border-gray-800">
-          <p className="text-gray-400 mb-4">Nemate jos nijednu narudzbu</p>
-          <p className="text-gray-500 text-sm">
-            Narudzbe ce se pojaviti kada kupci naruce proizvode iz vaših
-            galerija.
+        <div className="bg-white rounded-xl p-8 text-center border border-stone-200 shadow-sm">
+          <p className="text-stone-500 mb-4">You don't have any orders yet</p>
+          <p className="text-stone-400 text-sm">
+            Orders will appear here when customers purchase products from your
+            galleries.
           </p>
         </div>
       ) : (

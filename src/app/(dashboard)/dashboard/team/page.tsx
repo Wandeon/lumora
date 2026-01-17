@@ -85,35 +85,35 @@ export default function TeamPage() {
 
   const getRoleLabel = (roleValue: string): string => {
     const labels: Record<string, string> = {
-      owner: 'Vlasnik',
-      admin: 'Administrator',
-      editor: 'Urednik',
-      viewer: 'Preglednik',
+      owner: 'Owner',
+      admin: 'Admin',
+      editor: 'Editor',
+      viewer: 'Viewer',
     };
     return labels[roleValue] || roleValue;
   };
 
   const getRoleBadgeClass = (roleValue: string): string => {
     const classes: Record<string, string> = {
-      owner: 'bg-purple-500/20 text-purple-400',
-      admin: 'bg-blue-500/20 text-blue-400',
-      editor: 'bg-emerald-500/20 text-emerald-400',
-      viewer: 'bg-gray-500/20 text-gray-400',
+      owner: 'bg-purple-50 text-purple-700',
+      admin: 'bg-blue-50 text-blue-700',
+      editor: 'bg-emerald-50 text-emerald-700',
+      viewer: 'bg-stone-100 text-stone-600',
     };
-    return classes[roleValue] || 'bg-gray-500/20 text-gray-400';
+    return classes[roleValue] || 'bg-stone-100 text-stone-600';
   };
 
   const getStatusBadge = (status: string): React.ReactNode => {
     if (status === 'pending') {
       return (
-        <span className="px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-400">
-          Ceka prihvat
+        <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-50 text-yellow-700">
+          Pending
         </span>
       );
     }
     return (
-      <span className="px-2 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400">
-        Aktivan
+      <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700">
+        Active
       </span>
     );
   };
@@ -121,9 +121,9 @@ export default function TeamPage() {
   if (isLoading) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-white mb-6">Tim</h1>
-        <div className="bg-gray-900 rounded-lg p-8 text-center border border-gray-800">
-          <p className="text-gray-400">Ucitavanje...</p>
+        <h1 className="text-2xl font-bold text-stone-900 mb-6">Team</h1>
+        <div className="bg-white rounded-xl p-8 text-center border border-stone-200 shadow-sm">
+          <p className="text-stone-500">Loading...</p>
         </div>
       </div>
     );
@@ -132,9 +132,9 @@ export default function TeamPage() {
   if (error) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-white mb-6">Tim</h1>
-        <div className="bg-gray-900 rounded-lg p-8 text-center border border-gray-800">
-          <p className="text-rose-400">{error}</p>
+        <h1 className="text-2xl font-bold text-stone-900 mb-6">Team</h1>
+        <div className="bg-white rounded-xl p-8 text-center border border-stone-200 shadow-sm">
+          <p className="text-rose-600">{error}</p>
         </div>
       </div>
     );
@@ -142,12 +142,12 @@ export default function TeamPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Tim</h1>
+      <h1 className="text-2xl font-bold text-stone-900 mb-6">Team</h1>
 
       {/* Invitation Form */}
-      <div className="bg-gray-900 rounded-lg p-6 border border-gray-800 mb-6">
-        <h2 className="text-lg font-semibold text-white mb-4">
-          Pozovi novog clana
+      <div className="bg-white rounded-xl p-6 border border-stone-200 shadow-sm mb-6">
+        <h2 className="text-lg font-semibold text-stone-900 mb-4">
+          Invite Team Member
         </h2>
         <form
           onSubmit={handleInvite}
@@ -155,7 +155,7 @@ export default function TeamPage() {
         >
           <div className="flex-1">
             <label htmlFor="email" className="sr-only">
-              Email adresa
+              Email address
             </label>
             <input
               id="email"
@@ -163,14 +163,16 @@ export default function TeamPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="email@primjer.com"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              placeholder="email@example.com"
+              className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg
+                         text-stone-900 placeholder:text-stone-400
+                         focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                         transition-colors"
             />
           </div>
           <div className="sm:w-40">
             <label htmlFor="role" className="sr-only">
-              Uloga
+              Role
             </label>
             <select
               id="role"
@@ -178,88 +180,94 @@ export default function TeamPage() {
               onChange={(e) =>
                 setRole(e.target.value as 'admin' | 'editor' | 'viewer')
               }
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg
+                         text-stone-900
+                         focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                         transition-colors"
             >
-              <option value="viewer">Preglednik</option>
-              <option value="editor">Urednik</option>
-              <option value="admin">Administrator</option>
+              <option value="viewer">Viewer</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-emerald-600 text-white font-semibold rounded-lg
-                       hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed
-                       whitespace-nowrap"
+            className="px-6 py-2 bg-amber-600 text-white font-semibold rounded-lg
+                       hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed
+                       whitespace-nowrap transition-colors shadow-sm"
           >
-            {isSubmitting ? 'Slanje...' : 'Posalji pozivnicu'}
+            {isSubmitting ? 'Sending...' : 'Send Invitation'}
           </button>
         </form>
 
         {formError && (
-          <div className="mt-4 bg-rose-500/10 border border-rose-500/20 rounded-lg p-3">
-            <p className="text-sm text-rose-400">{formError}</p>
+          <div className="mt-4 bg-rose-50 border border-rose-200 rounded-lg p-3">
+            <p className="text-sm text-rose-600">{formError}</p>
           </div>
         )}
 
         {successMessage && (
-          <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
-            <p className="text-sm text-emerald-400">{successMessage}</p>
+          <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+            <p className="text-sm text-emerald-700">{successMessage}</p>
           </div>
         )}
       </div>
 
       {/* Team Members List */}
-      <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-800">
-          <h2 className="text-lg font-semibold text-white">
-            Clanovi tima ({members.length})
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
+        <div className="px-4 py-3 border-b border-stone-100">
+          <h2 className="text-lg font-semibold text-stone-900">
+            Team Members ({members.length})
           </h2>
         </div>
 
         {members.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-gray-400">Nemate jos nijednog clana u timu</p>
+            <p className="text-stone-500">No team members yet</p>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-800">
+            <thead className="bg-stone-50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                  Clan
+                <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+                  Member
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                  Uloga
+                <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+                  Role
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
+                <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                  Zadnja prijava
+                <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+                  Last Login
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-stone-100">
               {members.map((member) => (
-                <tr key={member.id} className="hover:bg-gray-800/50">
+                <tr key={member.id} className="hover:bg-stone-50 transition-colors">
                   <td className="px-4 py-3">
                     <div>
-                      <p className="text-white font-medium">{member.name}</p>
-                      <p className="text-gray-400 text-sm">{member.email}</p>
+                      <p className="text-stone-900 font-medium">{member.name}</p>
+                      <p className="text-stone-500 text-sm">{member.email}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-1 text-xs rounded-full ${getRoleBadgeClass(member.role)}`}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-full ${getRoleBadgeClass(member.role)}`}
                     >
                       {getRoleLabel(member.role)}
                     </span>
                   </td>
                   <td className="px-4 py-3">{getStatusBadge(member.status)}</td>
-                  <td className="px-4 py-3 text-gray-400 text-sm">
+                  <td className="px-4 py-3 text-stone-500 text-sm">
                     {member.lastLoginAt
-                      ? new Date(member.lastLoginAt).toLocaleDateString('hr-HR')
+                      ? new Date(member.lastLoginAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })
                       : '-'}
                   </td>
                 </tr>
@@ -270,47 +278,47 @@ export default function TeamPage() {
       </div>
 
       {/* Role Descriptions */}
-      <div className="mt-6 bg-gray-900 rounded-lg p-6 border border-gray-800">
-        <h2 className="text-lg font-semibold text-white mb-4">
-          Uloge i dozvole
+      <div className="mt-6 bg-white rounded-xl p-6 border border-stone-200 shadow-sm">
+        <h2 className="text-lg font-semibold text-stone-900 mb-4">
+          Roles & Permissions
         </h2>
         <div className="space-y-3 text-sm">
           <div className="flex items-start gap-3">
             <span
-              className={`px-2 py-1 text-xs rounded-full ${getRoleBadgeClass('owner')}`}
+              className={`px-2.5 py-1 text-xs font-medium rounded-full ${getRoleBadgeClass('owner')}`}
             >
-              Vlasnik
+              Owner
             </span>
-            <p className="text-gray-400">
-              Potpuna kontrola nad svim postavkama i fakturiranjem
+            <p className="text-stone-600">
+              Full control over all settings and billing
             </p>
           </div>
           <div className="flex items-start gap-3">
             <span
-              className={`px-2 py-1 text-xs rounded-full ${getRoleBadgeClass('admin')}`}
+              className={`px-2.5 py-1 text-xs font-medium rounded-full ${getRoleBadgeClass('admin')}`}
             >
-              Administrator
+              Admin
             </span>
-            <p className="text-gray-400">
-              Moze upravljati timom i svim galerije
+            <p className="text-stone-600">
+              Can manage team and all galleries
             </p>
           </div>
           <div className="flex items-start gap-3">
             <span
-              className={`px-2 py-1 text-xs rounded-full ${getRoleBadgeClass('editor')}`}
+              className={`px-2.5 py-1 text-xs font-medium rounded-full ${getRoleBadgeClass('editor')}`}
             >
-              Urednik
+              Editor
             </span>
-            <p className="text-gray-400">Moze kreirati i uredivati galerije</p>
+            <p className="text-stone-600">Can create and edit galleries</p>
           </div>
           <div className="flex items-start gap-3">
             <span
-              className={`px-2 py-1 text-xs rounded-full ${getRoleBadgeClass('viewer')}`}
+              className={`px-2.5 py-1 text-xs font-medium rounded-full ${getRoleBadgeClass('viewer')}`}
             >
-              Preglednik
+              Viewer
             </span>
-            <p className="text-gray-400">
-              Moze samo pregledavati galerije i narudzbe
+            <p className="text-stone-600">
+              Can only view galleries and orders
             </p>
           </div>
         </div>

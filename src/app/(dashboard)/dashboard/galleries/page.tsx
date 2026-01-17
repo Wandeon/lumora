@@ -32,23 +32,23 @@ export default async function GalleriesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Galerije</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Galleries</h1>
         <Link
           href="/dashboard/galleries/new"
-          className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
         >
-          + Nova galerija
+          + New Gallery
         </Link>
       </div>
 
       {formattedGalleries.length === 0 ? (
-        <div className="bg-gray-900 rounded-lg p-8 text-center border border-gray-800">
-          <p className="text-gray-400 mb-4">Nemate jos nijednu galeriju</p>
+        <div className="bg-white rounded-xl p-8 text-center border border-stone-200 shadow-sm">
+          <p className="text-stone-500 mb-4">You don't have any galleries yet</p>
           <Link
             href="/dashboard/galleries/new"
-            className="text-emerald-400 hover:text-emerald-300"
+            className="text-amber-600 hover:text-amber-700 font-medium"
           >
-            Kreirajte prvu galeriju
+            Create your first gallery
           </Link>
         </div>
       ) : (

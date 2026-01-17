@@ -8,13 +8,13 @@ export async function DashboardHeader() {
       {session?.user && (
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-white">
+            <p className="text-sm font-medium text-stone-800">
               {session.user.name}
             </p>
-            <p className="text-xs text-gray-400">{session.user.email}</p>
+            <p className="text-xs text-stone-500">{session.user.email}</p>
           </div>
           <div
-            className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center"
+            className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-sm"
             aria-hidden="true"
           >
             <span className="text-white font-semibold">

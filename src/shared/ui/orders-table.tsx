@@ -20,28 +20,28 @@ interface OrdersTableProps {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    pending: 'bg-yellow-600/20 text-yellow-400',
-    confirmed: 'bg-blue-600/20 text-blue-400',
-    processing: 'bg-purple-600/20 text-purple-400',
-    shipped: 'bg-cyan-600/20 text-cyan-400',
-    delivered: 'bg-emerald-600/20 text-emerald-400',
-    cancelled: 'bg-gray-600/20 text-gray-400',
-    refunded: 'bg-rose-600/20 text-rose-400',
+    pending: 'bg-yellow-50 text-yellow-700',
+    confirmed: 'bg-blue-50 text-blue-700',
+    processing: 'bg-purple-50 text-purple-700',
+    shipped: 'bg-cyan-50 text-cyan-700',
+    delivered: 'bg-emerald-50 text-emerald-700',
+    cancelled: 'bg-stone-100 text-stone-600',
+    refunded: 'bg-rose-50 text-rose-700',
   };
 
   const labels: Record<string, string> = {
-    pending: 'Na cekanju',
-    confirmed: 'Potvrdeno',
-    processing: 'U obradi',
-    shipped: 'Poslano',
-    delivered: 'Isporuceno',
-    cancelled: 'Otkazano',
-    refunded: 'Refundirano',
+    pending: 'Pending',
+    confirmed: 'Confirmed',
+    processing: 'Processing',
+    shipped: 'Shipped',
+    delivered: 'Delivered',
+    cancelled: 'Cancelled',
+    refunded: 'Refunded',
   };
 
   return (
     <span
-      className={`px-2 py-1 text-xs rounded-full ${styles[status] || styles.pending}`}
+      className={`px-2.5 py-1 text-xs font-medium rounded-full ${styles[status] || styles.pending}`}
     >
       {labels[status] || status}
     </span>
@@ -49,7 +49,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('hr-HR', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
   }).format(amount / 100);
@@ -57,63 +57,67 @@ function formatCurrency(amount: number, currency: string): string {
 
 export function OrdersTable({ orders }: OrdersTableProps) {
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
       <table className="w-full">
-        <thead className="bg-gray-800">
+        <thead className="bg-stone-50">
           <tr>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Broj narudzbe
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Order #
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Kupac
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Customer
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
               Status
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Stavke
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Items
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Ukupno
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Total
             </th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-              Datum
+            <th className="px-4 py-3 text-left text-sm font-medium text-stone-600">
+              Date
             </th>
-            <th className="px-4 py-3 text-right text-sm font-medium text-gray-300">
-              Akcije
+            <th className="px-4 py-3 text-right text-sm font-medium text-stone-600">
+              Actions
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-800">
+        <tbody className="divide-y divide-stone-100">
           {orders.map((order) => (
-            <tr key={order.id} className="hover:bg-gray-800/50">
+            <tr key={order.id} className="hover:bg-stone-50 transition-colors">
               <td className="px-4 py-3">
-                <code className="text-emerald-400 font-mono">
+                <code className="text-amber-600 font-mono text-sm bg-amber-50 px-2 py-0.5 rounded">
                   {order.orderNumber}
                 </code>
               </td>
               <td className="px-4 py-3">
                 <div>
-                  <p className="text-white">{order.customerName}</p>
-                  <p className="text-gray-500 text-sm">{order.customerEmail}</p>
+                  <p className="text-stone-900 font-medium">{order.customerName}</p>
+                  <p className="text-stone-500 text-sm">{order.customerEmail}</p>
                 </div>
               </td>
               <td className="px-4 py-3">
                 <StatusBadge status={order.status} />
               </td>
-              <td className="px-4 py-3 text-gray-300">{order.itemCount}</td>
-              <td className="px-4 py-3 text-white font-medium">
+              <td className="px-4 py-3 text-stone-600">{order.itemCount}</td>
+              <td className="px-4 py-3 text-stone-900 font-medium">
                 {formatCurrency(order.total, order.currency)}
               </td>
-              <td className="px-4 py-3 text-gray-400">
-                {new Date(order.createdAt).toLocaleDateString('hr-HR')}
+              <td className="px-4 py-3 text-stone-500">
+                {new Date(order.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
               </td>
               <td className="px-4 py-3 text-right">
                 <Link
                   href={`/dashboard/orders/${order.id}`}
-                  className="text-emerald-400 hover:text-emerald-300"
+                  className="text-amber-600 hover:text-amber-700 font-medium text-sm"
                 >
-                  Detalji
+                  Details
                 </Link>
               </td>
             </tr>

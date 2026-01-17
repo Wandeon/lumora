@@ -13,7 +13,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     href: '/dashboard',
-    label: 'Pregled',
+    label: 'Overview',
     icon: (
       <svg
         className="w-5 h-5"
@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/dashboard/galleries',
-    label: 'Galerije',
+    label: 'Galleries',
     icon: (
       <svg
         className="w-5 h-5"
@@ -53,7 +53,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/dashboard/orders',
-    label: 'Narudzbe',
+    label: 'Orders',
     icon: (
       <svg
         className="w-5 h-5"
@@ -73,7 +73,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/dashboard/products',
-    label: 'Proizvodi',
+    label: 'Products',
     icon: (
       <svg
         className="w-5 h-5"
@@ -92,8 +92,28 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    href: '/dashboard/settings',
-    label: 'Postavke',
+    href: '/dashboard/team',
+    label: 'Team',
+    icon: (
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+        />
+      </svg>
+    ),
+  },
+  {
+    href: '/dashboard/settings/billing',
+    label: 'Settings',
     icon: (
       <svg
         className="w-5 h-5"
@@ -137,7 +157,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-stone-900/50 z-40 md:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -147,7 +167,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
       <nav
         className={`
           fixed md:static inset-y-0 left-0 z-50
-          w-64 bg-gray-900 border-r border-gray-800 min-h-screen p-4
+          w-64 bg-white border-r border-stone-200 min-h-screen p-4
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0
@@ -156,13 +176,15 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
       >
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-white">Lumora</h1>
-            <p className="text-sm text-gray-400">Studio Dashboard</p>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-amber-700 to-amber-500 bg-clip-text text-transparent">
+              Lumora
+            </h1>
+            <p className="text-sm text-stone-500">Studio Dashboard</p>
           </div>
           {/* Close button for mobile */}
           <button
             type="button"
-            className="md:hidden p-2 text-gray-400 hover:text-white"
+            className="md:hidden p-2 text-stone-400 hover:text-stone-600"
             onClick={onClose}
             aria-label="Close sidebar"
           >
@@ -195,8 +217,8 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-emerald-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -229,16 +251,16 @@ export function DashboardShell({ children, header }: DashboardShellProps) {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
+    <div className="flex min-h-screen bg-[#FFFBF7]">
       <DashboardSidebar isOpen={sidebarOpen} onClose={closeSidebar} />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header with hamburger */}
-        <header className="h-16 bg-gray-900 border-b border-gray-800 px-6 flex items-center justify-between">
+        <header className="h-16 bg-white border-b border-stone-200 px-6 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-4">
             {/* Hamburger menu button - only visible on mobile */}
             <button
               type="button"
-              className="md:hidden p-2 -ml-2 text-gray-400 hover:text-white"
+              className="md:hidden p-2 -ml-2 text-stone-400 hover:text-stone-600"
               onClick={toggleSidebar}
               aria-label="Toggle sidebar"
               aria-expanded={sidebarOpen}
@@ -258,7 +280,7 @@ export function DashboardShell({ children, header }: DashboardShellProps) {
                 />
               </svg>
             </button>
-            <h2 className="text-lg font-semibold text-white">Dashboard</h2>
+            <h2 className="text-lg font-semibold text-stone-800">Dashboard</h2>
           </div>
 
           {/* User info from server component passed through header prop */}

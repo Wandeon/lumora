@@ -40,13 +40,13 @@ export function ForgotPasswordForm({ tenantId }: ForgotPasswordFormProps) {
   if (success) {
     return (
       <div className="text-center">
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 mb-4">
-          <p className="text-emerald-400">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-4">
+          <p className="text-emerald-700">
             If an account exists with that email, you will receive a password
             reset link shortly.
           </p>
         </div>
-        <Link href="/login" className="text-emerald-400 hover:underline">
+        <Link href="/login" className="text-amber-600 hover:text-amber-700 hover:underline font-medium">
           Back to login
         </Link>
       </div>
@@ -55,7 +55,7 @@ export function ForgotPasswordForm({ tenantId }: ForgotPasswordFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-gray-400 text-sm text-center mb-4">
+      <p className="text-stone-500 text-sm text-center mb-4">
         Enter your email address and we&apos;ll send you a link to reset your
         password.
       </p>
@@ -63,16 +63,16 @@ export function ForgotPasswordForm({ tenantId }: ForgotPasswordFormProps) {
       {error && (
         <div
           role="alert"
-          className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-3"
+          className="bg-rose-50 border border-rose-200 rounded-lg p-3"
         >
-          <p className="text-sm text-rose-400">{error}</p>
+          <p className="text-sm text-rose-600">{error}</p>
         </div>
       )}
 
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block text-sm font-medium text-stone-700 mb-1"
         >
           Email
         </label>
@@ -83,23 +83,26 @@ export function ForgotPasswordForm({ tenantId }: ForgotPasswordFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                     text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-          placeholder="your@email.com"
+          className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg
+                     text-stone-900 placeholder:text-stone-400
+                     focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                     transition-colors"
+          placeholder="you@example.com"
         />
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-2 px-4 bg-emerald-600 text-white font-semibold rounded-lg
-                   hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-2.5 px-4 bg-amber-600 text-white font-semibold rounded-lg
+                   hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed
+                   transition-colors shadow-sm"
       >
         {isLoading ? 'Sending...' : 'Send Reset Link'}
       </button>
 
       <div className="text-center">
-        <Link href="/login" className="text-sm text-gray-400 hover:text-white">
+        <Link href="/login" className="text-sm text-stone-500 hover:text-stone-700">
           Back to login
         </Link>
       </div>

@@ -8,11 +8,13 @@ export const metadata: Metadata = {
 
 export default function SignupPage() {
   return (
-    <div className="w-full max-w-md">
-      <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
+    <div className="w-full max-w-md relative">
+      <div className="bg-white rounded-2xl p-8 border border-stone-200 shadow-xl">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Create Your Studio</h1>
-          <p className="text-gray-400 mt-1">Start your 14-day free trial</p>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-500 bg-clip-text text-transparent">
+            Create Your Studio
+          </h1>
+          <p className="text-stone-500 mt-1">Start your 14-day free trial</p>
         </div>
         <SignupForm />
       </div>
