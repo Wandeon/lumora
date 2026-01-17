@@ -6,6 +6,8 @@ import { randomBytes } from 'crypto';
 import { checkOrderLimit } from '@/infrastructure/rate-limit';
 import { MAX_ORDER_ITEMS } from '@/shared/lib/tier-limits';
 import { sendOrderConfirmation } from '@/infrastructure/email';
+import { env } from '@/shared/config/env';
+import { hasFeature } from '@/shared/lib/features';
 
 export const runtime = 'nodejs';
 
@@ -77,7 +79,7 @@ export async function POST(request: NextRequest) {
   // Validate gallery exists and get tenant
   const gallery = await prisma.gallery.findUnique({
     where: { id: data.galleryId },
-    select: { id: true, tenantId: true, status: true },
+    select: { id: true, tenantId: true, status: true, visibility: true, expiresAt: true },
   });
 
   if (!gallery) {
@@ -88,6 +90,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Gallery is not available for orders' },
       { status: 400 }
+    );
+  }
+
+  // Check gallery expiration
+  if (gallery.expiresAt && new Date(gallery.expiresAt) < new Date()) {
+    return NextResponse.json(
+      { error: 'Gallery has expired' },
+      { status: 400 }
+    );
+  }
+
+  // Check gallery visibility - only public and code_protected galleries can accept orders
+  if (gallery.visibility === 'private') {
+    return NextResponse.json(
+      { error: 'Gallery is not available for orders' },
+      { status: 400 }
+    );
+  }
+
+  // Check if tenant has print_orders feature
+  const canCreateOrders = await hasFeature(gallery.tenantId, 'print_orders');
+  if (!canCreateOrders) {
+    return NextResponse.json(
+      { error: 'Print orders are not available for this studio' },
+      { status: 403 }
     );
   }
 
@@ -188,6 +215,7 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity,
       unitPrice: item.unitPrice,
     })),
+    orderUrl: `${env.NEXT_PUBLIC_APP_URL}/order/${order.id}?token=${order.accessToken}`,
   }).catch((err) =>
     console.error('[EMAIL] Failed to send order confirmation:', err)
   );

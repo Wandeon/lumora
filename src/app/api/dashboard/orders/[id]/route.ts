@@ -87,6 +87,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     where: { id, tenantId: authResult.tenantId },
     select: {
       status: true,
+      accessToken: true,
       customerEmail: true,
       customerName: true,
       orderNumber: true,
@@ -113,7 +114,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
   // Send email notification if status changed
   if (parsed.data.status && parsed.data.status !== existingOrder.status) {
-    const orderUrl = `${env.NEXT_PUBLIC_APP_URL}/order/${id}`;
+    const orderUrl = `${env.NEXT_PUBLIC_APP_URL}/order/${id}?token=${existingOrder.accessToken}`;
 
     sendOrderStatusChange({
       customerEmail: existingOrder.customerEmail,

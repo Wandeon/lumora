@@ -3,6 +3,7 @@ import { prisma } from '@/shared/lib/db';
 import { createCheckoutSession } from '@/infrastructure/payments/stripe-client';
 import { checkCheckoutLimit } from '@/infrastructure/rate-limit';
 import { env } from '@/shared/config/env';
+import { hasFeature } from '@/shared/lib/features';
 
 // Force Node.js runtime for Prisma compatibility
 export const runtime = 'nodejs';
@@ -52,6 +53,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   }
 
+  // Check if tenant has payments feature (requires pro tier or higher)
+  const canProcessPayments = await hasFeature(order.tenantId, 'payments');
+  if (!canProcessPayments) {
+    return NextResponse.json(
+      { error: 'Payment processing is not available for this studio' },
+      { status: 403 }
+    );
+  }
+
   // Only allow checkout for pending orders
   if (order.status !== 'pending') {
     return NextResponse.json(
@@ -81,8 +91,8 @@ export async function POST(request: NextRequest) {
       amount: item.unitPrice,
       quantity: item.quantity,
     })),
-    successUrl: `${baseUrl}/order/${order.id}/success`,
-    cancelUrl: `${baseUrl}/order/${order.id}/cancel`,
+    successUrl: `${baseUrl}/order/${order.id}?token=${order.accessToken}&status=success`,
+    cancelUrl: `${baseUrl}/order/${order.id}?token=${order.accessToken}&status=cancelled`,
   });
 
   // Store the session ID on the order to prevent duplicate checkouts

@@ -35,6 +35,7 @@ export async function sendOrderConfirmation(order: {
   total: number;
   currency: string;
   items: Array<{ name: string; quantity: number; unitPrice: number }>;
+  orderUrl: string;
 }): Promise<void> {
   const { html, text } = orderConfirmationTemplate(order);
   await sendEmail({

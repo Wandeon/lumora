@@ -7,6 +7,7 @@ interface OrderConfirmationParams {
   total: number;
   currency: string;
   items: Array<{ name: string; quantity: number; unitPrice: number }>;
+  orderUrl: string;
 }
 
 export function orderConfirmationTemplate(params: OrderConfirmationParams): {
@@ -43,7 +44,9 @@ export function orderConfirmationTemplate(params: OrderConfirmationParams): {
       </tr>
     </table>
 
-    <p style="margin: 0; color: #71717a; font-size: 14px;">We'll notify you when your order ships.</p>
+    <p style="margin: 0 0 16px; color: #71717a; font-size: 14px;">We'll notify you when your order ships.</p>
+
+    <a href="${params.orderUrl}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">View Order Status</a>
   `;
 
   const text = `
@@ -57,6 +60,8 @@ Items:
 ${params.items.map((item) => `- ${e(item.name)} x${item.quantity}: ${(item.unitPrice / 100).toFixed(2)} ${params.currency}`).join('\n')}
 
 Total: ${(params.total / 100).toFixed(2)} ${params.currency}
+
+View your order: ${params.orderUrl}
 
 We'll notify you when your order ships.
   `.trim();
