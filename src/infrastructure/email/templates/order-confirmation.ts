@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface OrderConfirmationParams {
   customerName: string;
@@ -16,7 +17,7 @@ export function orderConfirmationTemplate(params: OrderConfirmationParams): {
     .map(
       (item) => `
       <tr>
-        <td style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">${item.name}</td>
+        <td style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">${e(item.name)}</td>
         <td style="padding: 8px 0; border-bottom: 1px solid #e4e4e7; text-align: center;">${item.quantity}</td>
         <td style="padding: 8px 0; border-bottom: 1px solid #e4e4e7; text-align: right;">${(item.unitPrice / 100).toFixed(2)} ${params.currency}</td>
       </tr>
@@ -26,8 +27,8 @@ export function orderConfirmationTemplate(params: OrderConfirmationParams): {
 
   const content = `
     <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">Order Confirmed</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${params.customerName},</p>
-    <p style="margin: 0 0 24px; color: #3f3f46;">Thank you for your order! Your order <strong>${params.orderNumber}</strong> has been confirmed.</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${e(params.customerName)},</p>
+    <p style="margin: 0 0 24px; color: #3f3f46;">Thank you for your order! Your order <strong>${e(params.orderNumber)}</strong> has been confirmed.</p>
 
     <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
       <tr style="background-color: #f4f4f5;">
@@ -48,12 +49,12 @@ export function orderConfirmationTemplate(params: OrderConfirmationParams): {
   const text = `
 Order Confirmed
 
-Hi ${params.customerName},
+Hi ${e(params.customerName)},
 
-Thank you for your order! Your order ${params.orderNumber} has been confirmed.
+Thank you for your order! Your order ${e(params.orderNumber)} has been confirmed.
 
 Items:
-${params.items.map((item) => `- ${item.name} x${item.quantity}: ${(item.unitPrice / 100).toFixed(2)} ${params.currency}`).join('\n')}
+${params.items.map((item) => `- ${e(item.name)} x${item.quantity}: ${(item.unitPrice / 100).toFixed(2)} ${params.currency}`).join('\n')}
 
 Total: ${(params.total / 100).toFixed(2)} ${params.currency}
 

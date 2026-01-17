@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface PaymentFailureParams {
   customerName: string;
@@ -19,8 +20,8 @@ export function paymentFailureTemplate(params: PaymentFailureParams): {
 
   const content = `
     <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">Payment Failed</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${params.customerName},</p>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Unfortunately, we were unable to process your payment for order <strong>${params.orderNumber}</strong>.</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${e(params.customerName)},</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Unfortunately, we were unable to process your payment for order <strong>${e(params.orderNumber)}</strong>.</p>
     <p style="margin: 0 0 24px; color: #3f3f46;">Amount: <strong>${formattedAmount}</strong></p>
     <p style="margin: 0 0 8px; color: #3f3f46;">This could be due to:</p>
     <ul style="margin: 0 0 24px; color: #3f3f46; padding-left: 20px;">
@@ -40,9 +41,9 @@ export function paymentFailureTemplate(params: PaymentFailureParams): {
   const text = `
 Payment Failed
 
-Hi ${params.customerName},
+Hi ${e(params.customerName)},
 
-Unfortunately, we were unable to process your payment for order ${params.orderNumber}.
+Unfortunately, we were unable to process your payment for order ${e(params.orderNumber)}.
 
 Amount: ${formattedAmount}
 

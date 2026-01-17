@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface TeamInvitationParams {
   inviterName: string;
@@ -14,8 +15,8 @@ export function teamInvitationTemplate(params: TeamInvitationParams): {
   const roleLabel = getRoleLabel(params.role);
 
   const content = `
-    <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">You're Invited to Join ${params.tenantName}</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;"><strong>${params.inviterName}</strong> has invited you to join their team on Lumora as a <strong>${roleLabel}</strong>.</p>
+    <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">You're Invited to Join ${e(params.tenantName)}</h1>
+    <p style="margin: 0 0 16px; color: #3f3f46;"><strong>${e(params.inviterName)}</strong> has invited you to join their team on Lumora as a <strong>${roleLabel}</strong>.</p>
     <p style="margin: 0 0 24px; color: #3f3f46;">Click the button below to accept the invitation and join the team:</p>
 
     <a href="${params.acceptUrl}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">Accept Invitation</a>
@@ -25,9 +26,9 @@ export function teamInvitationTemplate(params: TeamInvitationParams): {
   `;
 
   const text = `
-You're Invited to Join ${params.tenantName}
+You're Invited to Join ${e(params.tenantName)}
 
-${params.inviterName} has invited you to join their team on Lumora as a ${roleLabel}.
+${e(params.inviterName)} has invited you to join their team on Lumora as a ${roleLabel}.
 
 Click this link to accept the invitation and join the team:
 ${params.acceptUrl}
@@ -38,7 +39,7 @@ If you didn't expect this invitation, you can safely ignore this email.
   `.trim();
 
   return {
-    html: baseTemplate(content, `Join ${params.tenantName} on Lumora`),
+    html: baseTemplate(content, `Join ${e(params.tenantName)} on Lumora`),
     text,
   };
 }

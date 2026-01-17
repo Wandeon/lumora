@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface OrderStatusUpdateParams {
   customerName: string;
@@ -47,20 +48,20 @@ export function orderStatusUpdateTemplate(params: OrderStatusUpdateParams): {
 
   const content = `
     <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">${statusInfo.title}</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${params.customerName},</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${e(params.customerName)},</p>
     <p style="margin: 0 0 16px; color: #3f3f46;">${statusInfo.message}</p>
-    <p style="margin: 0; color: #3f3f46;">Order Number: <strong>${params.orderNumber}</strong></p>
+    <p style="margin: 0; color: #3f3f46;">Order Number: <strong>${e(params.orderNumber)}</strong></p>
     ${trackingHtml}
   `;
 
   const text = `
 ${statusInfo.title}
 
-Hi ${params.customerName},
+Hi ${e(params.customerName)},
 
 ${statusInfo.message}
 
-Order Number: ${params.orderNumber}
+Order Number: ${e(params.orderNumber)}
 ${params.trackingUrl ? `\nTrack your order: ${params.trackingUrl}` : ''}
   `.trim();
 

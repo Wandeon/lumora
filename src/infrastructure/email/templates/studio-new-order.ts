@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface StudioNewOrderParams {
   studioName: string;
@@ -22,20 +23,20 @@ export function studioNewOrderTemplate(params: StudioNewOrderParams): {
 
   const content = `
     <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">New Order Received</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${params.studioName},</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${e(params.studioName)},</p>
     <p style="margin: 0 0 24px; color: #3f3f46;">You have received a new order!</p>
     <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
       <tr>
         <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5;"><strong>Order Number</strong></td>
-        <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5; text-align: right;">${params.orderNumber}</td>
+        <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5; text-align: right;">${e(params.orderNumber)}</td>
       </tr>
       <tr>
         <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5;"><strong>Customer</strong></td>
-        <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5; text-align: right;">${params.customerName}</td>
+        <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5; text-align: right;">${e(params.customerName)}</td>
       </tr>
       <tr>
         <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5;"><strong>Email</strong></td>
-        <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5; text-align: right;">${params.customerEmail}</td>
+        <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5; text-align: right;">${e(params.customerEmail)}</td>
       </tr>
       <tr>
         <td style="padding: 8px 0; border-bottom: 1px solid #e5e5e5;"><strong>Items</strong></td>
@@ -56,12 +57,12 @@ export function studioNewOrderTemplate(params: StudioNewOrderParams): {
   const text = `
 New Order Received!
 
-Hi ${params.studioName},
+Hi ${e(params.studioName)},
 
 You have received a new order!
 
-Order: ${params.orderNumber}
-Customer: ${params.customerName} (${params.customerEmail})
+Order: ${e(params.orderNumber)}
+Customer: ${e(params.customerName)} (${e(params.customerEmail)})
 Items: ${params.itemCount}
 Total: ${formattedTotal}
 

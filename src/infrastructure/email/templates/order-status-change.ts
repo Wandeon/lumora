@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface OrderStatusChangeParams {
   customerName: string;
@@ -34,15 +35,15 @@ export function orderStatusChangeTemplate(params: OrderStatusChangeParams): {
     ? `
     <div style="margin: 24px 0; padding: 16px; background-color: #f4f4f5; border-radius: 6px;">
       <p style="margin: 0 0 8px; color: #3f3f46; font-weight: 600;">Message from the studio:</p>
-      <p style="margin: 0; color: #3f3f46;">${params.statusMessage}</p>
+      <p style="margin: 0; color: #3f3f46;">${e(params.statusMessage)}</p>
     </div>
     `
     : '';
 
   const content = `
     <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">Order Status Updated</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${params.customerName},</p>
-    <p style="margin: 0 0 16px; color: #3f3f46;">The status of your order <strong>${params.orderNumber}</strong> has been updated.</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${e(params.customerName)},</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">The status of your order <strong>${e(params.orderNumber)}</strong> has been updated.</p>
 
     <div style="margin: 24px 0; padding: 20px; background-color: #f0fdf4; border-radius: 6px; text-align: center;">
       <p style="margin: 0 0 8px; color: #71717a; font-size: 14px;">Status changed from</p>
@@ -59,15 +60,15 @@ export function orderStatusChangeTemplate(params: OrderStatusChangeParams): {
   `;
 
   const statusMessageText = params.statusMessage
-    ? `\nMessage from the studio:\n${params.statusMessage}\n`
+    ? `\nMessage from the studio:\n${e(params.statusMessage)}\n`
     : '';
 
   const text = `
 Order Status Updated
 
-Hi ${params.customerName},
+Hi ${e(params.customerName)},
 
-The status of your order ${params.orderNumber} has been updated.
+The status of your order ${e(params.orderNumber)} has been updated.
 
 Status changed from: ${oldLabel} -> ${newLabel}
 ${statusMessageText}

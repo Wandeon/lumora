@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface WelcomeParams {
   email: string;
@@ -12,8 +13,8 @@ export function welcomeTemplate(params: WelcomeParams): {
   text: string;
 } {
   const content = `
-    <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">Welcome to ${params.tenantName}!</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${params.userName},</p>
+    <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">Welcome to ${e(params.tenantName)}!</h1>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${e(params.userName)},</p>
     <p style="margin: 0 0 24px; color: #3f3f46;">Your account has been created successfully. You can now access your dashboard and start managing your photos.</p>
 
     <a href="${params.loginUrl}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">Go to Dashboard</a>
@@ -22,9 +23,9 @@ export function welcomeTemplate(params: WelcomeParams): {
   `;
 
   const text = `
-Welcome to ${params.tenantName}!
+Welcome to ${e(params.tenantName)}!
 
-Hi ${params.userName},
+Hi ${e(params.userName)},
 
 Your account has been created successfully. You can now access your dashboard and start managing your photos.
 
@@ -34,7 +35,7 @@ If you have any questions, feel free to reach out to our support team.
   `.trim();
 
   return {
-    html: baseTemplate(content, `Welcome to ${params.tenantName}`),
+    html: baseTemplate(content, `Welcome to ${e(params.tenantName)}`),
     text,
   };
 }

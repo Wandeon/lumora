@@ -1,4 +1,5 @@
 import { baseTemplate } from './base';
+import { e } from './utils';
 
 interface RefundConfirmationParams {
   customerName: string;
@@ -18,8 +19,8 @@ export function refundConfirmationTemplate(params: RefundConfirmationParams): {
 
   const content = `
     <h1 style="margin: 0 0 24px; color: #18181b; font-size: 24px;">Refund Processed</h1>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${params.customerName},</p>
-    <p style="margin: 0 0 16px; color: #3f3f46;">Your refund for order <strong>${params.orderNumber}</strong> has been processed.</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Hi ${e(params.customerName)},</p>
+    <p style="margin: 0 0 16px; color: #3f3f46;">Your refund for order <strong>${e(params.orderNumber)}</strong> has been processed.</p>
     <p style="margin: 0 0 24px; color: #3f3f46;">Refund amount: <strong>${formattedAmount}</strong></p>
     <p style="margin: 0 0 16px; color: #3f3f46;">The refund will be credited to your original payment method within 5-10 business days, depending on your bank.</p>
     <p style="margin: 0; color: #71717a; font-size: 14px;">If you have any questions, please contact us.</p>
@@ -28,9 +29,9 @@ export function refundConfirmationTemplate(params: RefundConfirmationParams): {
   const text = `
 Refund Processed
 
-Hi ${params.customerName},
+Hi ${e(params.customerName)},
 
-Your refund for order ${params.orderNumber} has been processed.
+Your refund for order ${e(params.orderNumber)} has been processed.
 
 Refund amount: ${formattedAmount}
 
